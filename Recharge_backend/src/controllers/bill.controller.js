@@ -98,8 +98,8 @@ exports.payBill = async (req, res) => {
     // 6️⃣ Insert Bill Payment Record
     await conn.query(
       `INSERT INTO bill_payments
-      (user_id, transaction_id, operator_id, consumer_number, amount, latitude, longitude)
-      VALUES (?, ?, ?, ?, ?, ?, ?)`,
+(user_id, transaction_id, operator_id, consumer_number, amount, latitude, longitude, status)
+VALUES (?, ?, ?, ?, ?, ?, ?, 'Pending')`,
       [userId, txn.insertId, operatorId, canumber, amount, latitude, longitude]
     );
 
@@ -107,36 +107,64 @@ exports.payBill = async (req, res) => {
 
     // 7️⃣ Call PaySprint
     try {
-      const apiResponse = await paysprintBill.payBill({
-        operator,
-        canumber,
-        amount,
-        referenceid,
-        latitude,
-        longitude
-      });
 
-      // SUCCESS
-      await pool.query(
-        "UPDATE transactions SET status='Success' WHERE transaction_id=?",
-        [txn.insertId]
-      );
+const apiResponse = await paysprintBill.payBill({
+  operator,
+  canumber,
+  amount,
+  referenceid,
+  latitude,
+  longitude
+});
 
-      await pool.query(
-        "UPDATE payment_methods SET payment_status='Success' WHERE transaction_id=?",
-        [txn.insertId]
-      );
+// ✅ CHECK REAL STATUS FROM API
+if (apiResponse.status === true) {
 
-      await pool.query(
-        "UPDATE bill_payments SET status='Success', api_response=? WHERE transaction_id=?",
-        [JSON.stringify(apiResponse), txn.insertId]
-      );
+  await pool.query(
+    "UPDATE transactions SET status='Success' WHERE transaction_id=?",
+    [txn.insertId]
+  );
 
-      res.json({
-        message: "Bill payment successful",
-        transactionId: txn.insertId,
-        apiResponse
-      });
+  await pool.query(
+    "UPDATE payment_methods SET payment_status='Success' WHERE transaction_id=?",
+    [txn.insertId]
+  );
+
+  await pool.query(
+    "UPDATE bill_payments SET status='Success', api_response=? WHERE transaction_id=?",
+    [JSON.stringify(apiResponse), txn.insertId]
+  );
+
+  return res.json({
+    message: "Bill payment successful",
+    transactionId: txn.insertId,
+    apiResponse
+  });
+
+} else {
+
+  // ❌ API returned failure
+  await pool.query(
+    "UPDATE transactions SET status='Failed' WHERE transaction_id=?",
+    [txn.insertId]
+  );
+
+  await pool.query(
+    "UPDATE payment_methods SET payment_status='Failed' WHERE transaction_id=?",
+    [txn.insertId]
+  );
+
+  await pool.query(
+    "UPDATE bill_payments SET status='Failed', api_response=? WHERE transaction_id=?",
+    [JSON.stringify(apiResponse), txn.insertId]
+  );
+
+  return res.status(400).json({
+    message: "Bill payment failed",
+    transactionId: txn.insertId,
+    error: apiResponse
+  });
+}
 
     } catch (apiErr) {
 
