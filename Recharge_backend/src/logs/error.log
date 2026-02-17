@@ -32,3 +32,20 @@ STACK: SyntaxError: Unexpected end of JSON input
     at IncomingMessage.emit (node:events:518:28)
     at endReadableNT (node:internal/streams/readable:1698:12)
 ----------------------------------
+
+[2026-02-17T06:19:29.334Z]
+METHOD: POST
+URL: /api/bill/pay
+MESSAGE: pool is not defined
+STACK: ReferenceError: pool is not defined
+    at exports.payBill (E:\WorknAI\PayIndiastudio_App\Recharge_backend\src\controllers\bill.controller.js:37:16)
+    at Layer.handleRequest (E:\WorknAI\PayIndiastudio_App\Recharge_backend\node_modules\router\lib\layer.js:152:17)
+    at next (E:\WorknAI\PayIndiastudio_App\Recharge_backend\node_modules\router\lib\route.js:157:13)
+    at module.exports (E:\WorknAI\PayIndiastudio_App\Recharge_backend\src\middlewares\auth.middleware.js:22:5)
+    at Layer.handleRequest (E:\WorknAI\PayIndiastudio_App\Recharge_backend\node_modules\router\lib\layer.js:152:17)
+    at next (E:\WorknAI\PayIndiastudio_App\Recharge_backend\node_modules\router\lib\route.js:157:13)
+    at Route.dispatch (E:\WorknAI\PayIndiastudio_App\Recharge_backend\node_modules\router\lib\route.js:117:3)
+    at handle (E:\WorknAI\PayIndiastudio_App\Recharge_backend\node_modules\router\index.js:435:11)
+    at Layer.handleRequest (E:\WorknAI\PayIndiastudio_App\Recharge_backend\node_modules\router\lib\layer.js:152:17)
+    at E:\WorknAI\PayIndiastudio_App\Recharge_backend\node_modules\router\index.js:295:15
+----------------------------------

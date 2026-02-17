@@ -19,7 +19,7 @@ const adminRoutes = require("./routes/admin.routes");
 const reportRoutes = require("./routes/report.routes");
 const travelRoutes = require("./routes/travel.routes");
 const paysprint =require("./routes/paysprintTest.routes");
-
+const bill = require("./routes/bill.routes");
 
 
 const app = express();
@@ -74,6 +74,7 @@ app.use("/api/admin", adminRoutes);
 app.use("/api/reports", reportRoutes);
 app.use("/api/travel", travelRoutes);
 app.use("/api/system",paysprint);
+app.use("/api/bill",bill);
 
 /* -------------------- 404 HANDLER -------------------- */
 app.use((req, res) => {

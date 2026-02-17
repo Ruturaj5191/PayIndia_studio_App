@@ -63,14 +63,22 @@ exports.mobileRecharge = async (req, res) => {
       [userId, amount]
     );
 
-    // Create recharge record
-    await conn.query(
-      `INSERT INTO recharges 
-      (user_id, transaction_id, recharge_number, amount)
-      VALUES (?, ?, ?, ?)`,
-      [userId, txn.insertId, number, amount]
-    );
+    // ✅ ADD PAYMENT METHOD ENTRY (MISSING PART)
+await conn.query(
+  `INSERT INTO payment_methods
+   (transaction_id, payment_type, amount, payment_status)
+   VALUES (?, 'Wallet', ?, 'Pending')`,
+  [txn.insertId, amount]
+);
 
+
+    // Create recharge record
+await conn.query(
+  `INSERT INTO recharges 
+   (user_id, transaction_id, operator, recharge_number, amount)
+   VALUES (?, ?, ?, ?, ?)`,
+  [userId, txn.insertId, operatorCode, number, amount]
+);
     await conn.commit();
 
     // Call PaySprint API
@@ -94,6 +102,11 @@ exports.mobileRecharge = async (req, res) => {
         "UPDATE transactions SET status='Failed' WHERE transaction_id=?",
         [txn.insertId]
       );
+
+      await pool.query(
+  "UPDATE payment_methods SET payment_status='Failed' WHERE transaction_id=?",
+  [txn.insertId]
+);
 
       let statusCode = 502;
       let errorMessage = "Recharge failed at payment gateway";

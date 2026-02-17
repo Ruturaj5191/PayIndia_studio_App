@@ -1,0 +1,163 @@
+create database payindia_studio;
+use payindia_studio;
+
+CREATE TABLE users (
+  user_id INT AUTO_INCREMENT PRIMARY KEY,
+  mobile_number VARCHAR(15) UNIQUE NOT NULL,
+  name VARCHAR(100),
+  gender ENUM('Male','Female','Other'),
+  aadhar_number VARCHAR(12) UNIQUE,
+  date_of_birth DATE,
+  profile_image VARCHAR(255),
+  wallet_balance DECIMAL(10,2) DEFAULT 0.00,
+  role ENUM('USER','ADMIN','AGENT') NOT NULL,
+  is_active BOOLEAN DEFAULT TRUE,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  INDEX idx_mobile (mobile_number)
+);
+
+
+CREATE TABLE login_sessions (
+  session_id INT AUTO_INCREMENT PRIMARY KEY,
+  mobile_number VARCHAR(15) NOT NULL,
+  otp VARCHAR(6),
+  otp_generated_at TIMESTAMP,
+  otp_expires_at TIMESTAMP,
+  is_verified BOOLEAN DEFAULT FALSE,
+  session_token VARCHAR(255),
+  ip_address VARCHAR(45),
+  device_info TEXT,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  INDEX idx_mobile_session (mobile_number),
+  INDEX idx_token (session_token)
+);
+
+
+CREATE TABLE transactions (
+  transaction_id INT AUTO_INCREMENT PRIMARY KEY,
+  user_id INT NOT NULL,
+  transaction_type ENUM('Recharge','Loan','Insurance','Wallet_Credit','Wallet_Debit') NOT NULL,
+  amount DECIMAL(10,2) NOT NULL,
+  description TEXT,
+  status ENUM('Pending','Success','Failed') DEFAULT 'Pending',
+  transaction_reference VARCHAR(100) UNIQUE,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE,
+  INDEX idx_user_transactions (user_id),
+  INDEX idx_transaction_ref (transaction_reference)
+);
+
+
+CREATE TABLE recharges (
+  recharge_id INT AUTO_INCREMENT PRIMARY KEY,
+  user_id INT NOT NULL,
+  transaction_id INT,
+  operator VARCHAR(50),
+  circle VARCHAR(50),
+  recharge_number VARCHAR(15),
+  amount DECIMAL(10,2) NOT NULL,
+  status ENUM('Pending','Success','Failed') DEFAULT 'Pending',
+  api_response TEXT,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE,
+  FOREIGN KEY (transaction_id) REFERENCES transactions(transaction_id),
+  INDEX idx_user_recharges (user_id)
+);
+
+
+CREATE TABLE banks (
+  bank_id INT AUTO_INCREMENT PRIMARY KEY,
+  bank_name VARCHAR(100) NOT NULL,
+  bank_code VARCHAR(20) UNIQUE NOT NULL,
+  ifsc_prefix VARCHAR(10),
+  logo_url VARCHAR(255),
+  is_active BOOLEAN DEFAULT TRUE,
+  supports_upi BOOLEAN DEFAULT TRUE,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  INDEX idx_bank_code (bank_code)
+);
+
+CREATE TABLE user_bank_accounts (
+  account_id INT AUTO_INCREMENT PRIMARY KEY,
+  user_id INT NOT NULL,
+  bank_id INT NOT NULL,
+  account_number VARCHAR(20) NOT NULL,
+  account_holder_name VARCHAR(100) NOT NULL,
+  ifsc_code VARCHAR(11) NOT NULL,
+  account_type ENUM('Savings','Current') DEFAULT 'Savings',
+  linked_mobile VARCHAR(15),
+  is_verified BOOLEAN DEFAULT FALSE,
+  is_primary BOOLEAN DEFAULT FALSE,
+  verification_status ENUM('Pending','Verified','Failed') DEFAULT 'Pending',
+  verification_date TIMESTAMP NULL,
+  balance DECIMAL(10,2) DEFAULT 0.00,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE,
+  FOREIGN KEY (bank_id) REFERENCES banks(bank_id),
+  UNIQUE KEY unique_account (user_id, account_number),
+  INDEX idx_user_accounts (user_id),
+  INDEX idx_account_number (account_number)
+);
+
+CREATE TABLE bank_verification_otps (
+  verification_id INT AUTO_INCREMENT PRIMARY KEY,
+  account_id INT NOT NULL,
+  mobile_number VARCHAR(15) NOT NULL,
+  otp VARCHAR(6) NOT NULL,
+  otp_generated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  otp_expires_at TIMESTAMP,
+  is_verified BOOLEAN DEFAULT FALSE,
+  attempts INT DEFAULT 0,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (account_id) REFERENCES user_bank_accounts(account_id) ON DELETE CASCADE,
+  INDEX idx_account_verification (account_id)
+);
+
+CREATE TABLE payment_methods (
+  payment_id INT AUTO_INCREMENT PRIMARY KEY,
+  transaction_id INT NOT NULL,
+  payment_type ENUM('Wallet','Bank_Account','UPI','Card') NOT NULL,
+  bank_account_id INT NULL,
+  amount DECIMAL(10,2) NOT NULL,
+  payment_reference VARCHAR(100),
+  payment_status ENUM('Pending','Success','Failed') DEFAULT 'Pending',
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (transaction_id) REFERENCES transactions(transaction_id) ON DELETE CASCADE,
+  FOREIGN KEY (bank_account_id) REFERENCES user_bank_accounts(account_id),
+  INDEX idx_transaction_payment (transaction_id)
+);
+
+
+CREATE TABLE operators (
+  operator_id INT AUTO_INCREMENT PRIMARY KEY,
+  operator_code VARCHAR(20) UNIQUE,
+  operator_name VARCHAR(100),
+  service_type ENUM('MOBILE','DTH','ELECTRICITY'),
+  is_active BOOLEAN DEFAULT TRUE
+);
+
+
+CREATE TABLE bill_payments (
+  bill_id INT AUTO_INCREMENT PRIMARY KEY,
+  user_id INT NOT NULL,
+  transaction_id INT NOT NULL,
+  operator_id INT NOT NULL,
+  consumer_number VARCHAR(50) NOT NULL,
+  amount DECIMAL(10,2) NOT NULL,
+  latitude VARCHAR(20),
+  longitude VARCHAR(20),
+  status ENUM('Pending','Success','Failed') DEFAULT 'Pending',
+  api_response TEXT,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+
+  FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE,
+  FOREIGN KEY (transaction_id) REFERENCES transactions(transaction_id) ON DELETE CASCADE,
+  FOREIGN KEY (operator_id) REFERENCES operators(operator_id),
+
+  INDEX idx_user_bill (user_id),
+  INDEX idx_transaction_bill (transaction_id)
+);

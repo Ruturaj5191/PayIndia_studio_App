@@ -180,3 +180,41 @@ exports.seedBanks = async (req, res) => {
     conn.release();
   }
 };
+
+
+/**
+ * Get Banks from PaySprint
+ * GET /api/banking/banks
+ */
+exports.getBanks = async (req, res) => {
+  try {
+    // 1. Fetch from PaySprint
+    const data = await require("../services/paysprint/paysprint.banking").fetchBankList();
+
+    // 2. Validate response structure
+    if (!data.banklist || !data.banklist.data) {
+      console.error("Invalid PaySprint Response:", JSON.stringify(data));
+      return res.status(500).json({ message: "Invalid response from PaySprint" });
+    }
+
+    const banks = data.banklist.data;
+
+    // 3. Return formatted list
+    const formattedBanks = banks.map(bank => ({
+      bank_id: bank.id,
+      bank_name: bank.bankName,
+      bank_code: bank.iinno,
+      active: bank.activeFlag
+    }));
+
+    res.json({
+      message: "Bank list fetched successfully",
+      total: formattedBanks.length,
+      banks: formattedBanks
+    });
+
+  } catch (err) {
+    console.error("Get Banks Error:", err.message);
+    res.status(500).json({ message: "Failed to fetch banks", error: err.message });
+  }
+};
