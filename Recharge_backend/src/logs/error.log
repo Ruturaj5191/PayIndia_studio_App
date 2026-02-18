@@ -49,3 +49,20 @@ STACK: ReferenceError: pool is not defined
     at Layer.handleRequest (E:\WorknAI\PayIndiastudio_App\Recharge_backend\node_modules\router\lib\layer.js:152:17)
     at E:\WorknAI\PayIndiastudio_App\Recharge_backend\node_modules\router\index.js:295:15
 ----------------------------------
+
+[2026-02-18T06:25:16.138Z]
+METHOD: POST
+URL: /api/eseva/apply
+MESSAGE: Table 'payindia_studio.eseva_applications' doesn't exist
+STACK: Error: Table 'payindia_studio.eseva_applications' doesn't exist
+    at PromisePool.query (E:\WorknAI\PayIndiastudio_App\Recharge_backend\node_modules\mysql2\lib\promise\pool.js:36:22)
+    at exports.createApplication (E:\WorknAI\PayIndiastudio_App\Recharge_backend\src\models\eseva.model.js:8:33)
+    at exports.submitApplication (E:\WorknAI\PayIndiastudio_App\Recharge_backend\src\controllers\eseva.controller.js:14:48)
+    at Layer.handleRequest (E:\WorknAI\PayIndiastudio_App\Recharge_backend\node_modules\router\lib\layer.js:152:17)
+    at next (E:\WorknAI\PayIndiastudio_App\Recharge_backend\node_modules\router\lib\route.js:157:13)
+    at done (E:\WorknAI\PayIndiastudio_App\Recharge_backend\node_modules\multer\lib\make-middleware.js:59:7)
+    at indicateDone (E:\WorknAI\PayIndiastudio_App\Recharge_backend\node_modules\multer\lib\make-middleware.js:63:68)
+    at Multipart.<anonymous> (E:\WorknAI\PayIndiastudio_App\Recharge_backend\node_modules\multer\lib\make-middleware.js:187:7)
+    at Multipart.emit (node:events:518:28)
+    at emitCloseNT (node:internal/streams/destroy:148:10)
+----------------------------------

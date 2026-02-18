@@ -187,3 +187,40 @@ CREATE TABLE aadhar_enrollments (
   FOREIGN KEY (admin_id) REFERENCES users(user_id),
   FOREIGN KEY (agent_id) REFERENCES users(user_id)
 );
+
+CREATE TABLE eseva_applications (
+  application_id INT AUTO_INCREMENT PRIMARY KEY,
+  user_id INT NOT NULL,
+  service_type ENUM(
+    'Birth_Certificate',
+    'Death_Certificate',
+    'Income_Certificate',
+    'Caste_Certificate',
+    'Domicile_Certificate',
+    'Marriage_Certificate',
+    'Senior_Citizen_Certificate',
+    'Disability_Certificate'
+  ) NOT NULL,
+  applicant_name VARCHAR(100) NOT NULL,
+  applicant_details JSON,
+  status ENUM('Pending', 'Approved', 'Rejected', 'Processed') DEFAULT 'Pending',
+  admin_id INT,
+  agent_id INT,
+  admin_remarks TEXT,
+  agent_remarks TEXT,
+  processed_at TIMESTAMP NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE,
+  FOREIGN KEY (admin_id) REFERENCES users(user_id),
+  FOREIGN KEY (agent_id) REFERENCES users(user_id)
+);
+
+CREATE TABLE eseva_documents (
+  document_id INT AUTO_INCREMENT PRIMARY KEY,
+  application_id INT NOT NULL,
+  document_name VARCHAR(100) NOT NULL,
+  file_path VARCHAR(255) NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (application_id) REFERENCES eseva_applications(application_id) ON DELETE CASCADE
+);
