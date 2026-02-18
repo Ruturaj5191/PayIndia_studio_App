@@ -18,9 +18,10 @@ const agentRoutes = require("./routes/agent.routes");
 const adminRoutes = require("./routes/admin.routes");
 const reportRoutes = require("./routes/report.routes");
 const travelRoutes = require("./routes/travel.routes");
-const paysprint =require("./routes/paysprintTest.routes");
+const paysprint = require("./routes/paysprintTest.routes");
 const bill = require("./routes/bill.routes");
 const operatorRoutes = require("./routes/operator.routes");
+const aadharRoutes = require("./routes/aadhar.routes");
 
 const app = express();
 
@@ -73,9 +74,10 @@ app.use("/api/agent", agentRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/reports", reportRoutes);
 app.use("/api/travel", travelRoutes);
-app.use("/api/system",paysprint);
-app.use("/api/bill",bill);
+app.use("/api/system", paysprint);
+app.use("/api/bill", bill);
 app.use("/api/operators", operatorRoutes);
+app.use("/api/aadhar", aadharRoutes);
 /* -------------------- 404 HANDLER -------------------- */
 app.use((req, res) => {
   res.status(404).json({

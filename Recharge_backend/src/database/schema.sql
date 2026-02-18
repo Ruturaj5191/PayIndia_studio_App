@@ -1,4 +1,4 @@
-create database payindia_studio;
+  create database payindia_studio;
 use payindia_studio;
 
 CREATE TABLE users (
@@ -160,4 +160,30 @@ CREATE TABLE bill_payments (
 
   INDEX idx_user_bill (user_id),
   INDEX idx_transaction_bill (transaction_id)
+);
+
+CREATE TABLE aadhar_enrollments (
+  enrollment_id INT AUTO_INCREMENT PRIMARY KEY,
+  user_id INT NOT NULL,
+  full_name VARCHAR(100) NOT NULL,
+  date_of_birth DATE NOT NULL,
+  gender ENUM('Male','Female','Other') NOT NULL,
+  house_no_street VARCHAR(255),
+  area_village_locality VARCHAR(255),
+  city_taluka VARCHAR(100),
+  district VARCHAR(100),
+  state VARCHAR(100),
+  pincode VARCHAR(6),
+  mobile_number VARCHAR(15) NOT NULL,
+  status ENUM('Pending', 'Approved', 'Rejected', 'Processed') DEFAULT 'Pending',
+  admin_id INT,
+  agent_id INT,
+  admin_remarks TEXT,
+  agent_remarks TEXT,
+  processed_at TIMESTAMP NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE,
+  FOREIGN KEY (admin_id) REFERENCES users(user_id),
+  FOREIGN KEY (agent_id) REFERENCES users(user_id)
 );
