@@ -1,4 +1,5 @@
 const EsevaModel = require("../models/eseva.model");
+const requirements = require("../config/esevaRequirements");
 const path = require("path");
 const fs = require("fs");
 
@@ -9,6 +10,28 @@ exports.submitApplication = async (req, res, next) => {
     try {
         const userId = req.user.userId;
         const { service_type, applicant_name, applicant_details } = req.body;
+
+        // Validate if service_type exists in requirements
+        if (!requirements[service_type]) {
+            return res.status(400).json({ message: "Invalid service type" });
+        }
+
+        // Check if all required documents are present in req.files
+        const requiredDocs = requirements[service_type];
+        const uploadedDocs = req.files.map(f => f.fieldname);
+
+        const missingDocs = requiredDocs.filter(doc => !uploadedDocs.includes(doc));
+
+        if (missingDocs.length > 0) {
+            // Cleanup any files that were uploaded before failing
+            if (req.files) {
+                req.files.forEach(file => fs.unlinkSync(file.path));
+            }
+            return res.status(400).json({
+                message: "Missing required documents",
+                missingDocuments: missingDocs
+            });
+        }
 
         // Create application record
         const applicationId = await EsevaModel.createApplication({
