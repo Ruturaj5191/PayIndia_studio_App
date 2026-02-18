@@ -156,3 +156,17 @@ exports.processApplication = async (req, res, next) => {
         next(err);
     }
 };
+
+/**
+ * Get document requirements for all services
+ */
+exports.getRequirements = async (req, res, next) => {
+    try {
+        res.json({
+            success: true,
+            data: requirements
+        });
+    } catch (err) {
+        next(err);
+    }
+};

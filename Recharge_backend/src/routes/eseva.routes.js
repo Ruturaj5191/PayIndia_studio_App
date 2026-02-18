@@ -34,6 +34,9 @@ router.use(auth);
 // Submit application (allows multiple files)
 router.post("/apply", upload.any(), esevaController.submitApplication);
 
+// Get document requirements
+router.get("/requirements", esevaController.getRequirements);
+
 // List applications
 router.get("/list", esevaController.getApplications);
 
