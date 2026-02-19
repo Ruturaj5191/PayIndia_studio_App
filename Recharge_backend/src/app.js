@@ -23,6 +23,7 @@ const bill = require("./routes/bill.routes");
 const operatorRoutes = require("./routes/operator.routes");
 const aadharRoutes = require("./routes/aadhar.routes");
 const esevaRoutes = require("./routes/eseva.routes");
+const panRoutes = require("./routes/pan.routes");
 
 const app = express();
 
@@ -80,6 +81,7 @@ app.use("/api/bill", bill);
 app.use("/api/operators", operatorRoutes);
 app.use("/api/aadhar", aadharRoutes);
 app.use("/api/eseva", esevaRoutes);
+app.use("/api/pan", panRoutes);
 /* -------------------- 404 HANDLER -------------------- */
 app.use((req, res) => {
   res.status(404).json({

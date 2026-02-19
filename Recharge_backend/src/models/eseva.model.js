@@ -40,10 +40,16 @@ exports.getByUserId = async (userId) => {
  */
 exports.getAll = async () => {
     const [rows] = await pool.query(
-        `SELECT ea.*, u.name as user_name, u.mobile_number as user_mobile 
-     FROM eseva_applications ea 
-     JOIN users u ON ea.user_id = u.user_id 
-     ORDER BY ea.created_at DESC`
+        `SELECT 
+            ea.*, 
+            u.name as user_name, u.mobile_number as user_mobile,
+            a.name as admin_name,
+            ag.name as agent_name
+         FROM eseva_applications ea 
+         JOIN users u ON ea.user_id = u.user_id 
+         LEFT JOIN users a ON ea.admin_id = a.user_id
+         LEFT JOIN users ag ON ea.agent_id = ag.user_id
+         ORDER BY ea.created_at DESC`
     );
     return rows;
 };
@@ -53,7 +59,16 @@ exports.getAll = async () => {
  */
 exports.getByIdWithDocs = async (applicationId) => {
     const [appRows] = await pool.query(
-        `SELECT * FROM eseva_applications WHERE application_id = ?`,
+        `SELECT 
+            ea.*, 
+            u.name as user_name, u.mobile_number as user_mobile,
+            a.name as admin_name,
+            ag.name as agent_name
+         FROM eseva_applications ea 
+         JOIN users u ON ea.user_id = u.user_id 
+         LEFT JOIN users a ON ea.admin_id = a.user_id
+         LEFT JOIN users ag ON ea.agent_id = ag.user_id
+         WHERE ea.application_id = ?`,
         [applicationId]
     );
 

@@ -28,6 +28,9 @@ exports.sendOTP = async (req, res) => {
 
 exports.verifyOTP = async (req, res) => {
   try {
+    if (!req.body) {
+      return res.status(400).json({ message: "Request body is missing. Ensure Content-Type is application/json" });
+    }
     const { mobile, otp } = req.body;
 
     // 1️⃣ get latest OTP (do NOT block by expiry here)
@@ -90,8 +93,11 @@ exports.verifyOTP = async (req, res) => {
       token,
     });
   } catch (err) {
-    console.error("❌ VERIFY OTP ERROR:", err.message);
-    return res.status(500).json({ message: "Login failed" });
+    console.error("❌ VERIFY OTP ERROR:", err);
+    return res.status(500).json({
+      message: "Login failed",
+      error: process.env.NODE_ENV === 'development' ? err.message : undefined
+    });
   }
 };
 

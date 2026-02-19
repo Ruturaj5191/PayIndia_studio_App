@@ -224,3 +224,29 @@ CREATE TABLE eseva_documents (
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (application_id) REFERENCES eseva_applications(application_id) ON DELETE CASCADE
 );
+
+  CREATE TABLE pan_applications (
+    application_id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    full_name VARCHAR(100) NOT NULL,
+    father_name VARCHAR(100) NOT NULL,
+    mother_name VARCHAR(100) NOT NULL,
+    date_of_birth DATE NOT NULL,
+    mobile_number VARCHAR(15) NOT NULL,
+    email_address VARCHAR(100) NOT NULL,
+    aadhar_number VARCHAR(12) NOT NULL,
+    full_address TEXT NOT NULL,
+    city VARCHAR(100) NOT NULL,
+    pincode VARCHAR(6) NOT NULL,
+    status ENUM('Pending', 'Approved', 'Rejected', 'Processed') DEFAULT 'Pending',
+    admin_id INT,
+    agent_id INT,
+    admin_remarks TEXT,
+    agent_remarks TEXT,
+    processed_at TIMESTAMP NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE,
+    FOREIGN KEY (admin_id) REFERENCES users(user_id),
+    FOREIGN KEY (agent_id) REFERENCES users(user_id)
+  );

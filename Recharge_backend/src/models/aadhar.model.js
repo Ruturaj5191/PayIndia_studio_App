@@ -44,10 +44,16 @@ exports.create = async (data) => {
  */
 exports.getAll = async () => {
     const [rows] = await pool.query(
-        `SELECT ae.*, u.name as user_name, u.mobile_number as user_mobile 
-     FROM aadhar_enrollments ae 
-     JOIN users u ON ae.user_id = u.user_id 
-     ORDER BY ae.created_at DESC`
+        `SELECT 
+            ae.*, 
+            u.name as user_name, u.mobile_number as user_mobile,
+            a.name as admin_name,
+            ag.name as agent_name
+         FROM aadhar_enrollments ae 
+         JOIN users u ON ae.user_id = u.user_id 
+         LEFT JOIN users a ON ae.admin_id = a.user_id
+         LEFT JOIN users ag ON ae.agent_id = ag.user_id
+         ORDER BY ae.created_at DESC`
     );
     return rows;
 };
@@ -68,7 +74,16 @@ exports.getByUserId = async (userId) => {
  */
 exports.getById = async (enrollmentId) => {
     const [rows] = await pool.query(
-        `SELECT * FROM aadhar_enrollments WHERE enrollment_id = ?`,
+        `SELECT 
+            ae.*, 
+            u.name as user_name, u.mobile_number as user_mobile,
+            a.name as admin_name,
+            ag.name as agent_name
+         FROM aadhar_enrollments ae 
+         JOIN users u ON ae.user_id = u.user_id 
+         LEFT JOIN users a ON ae.admin_id = a.user_id
+         LEFT JOIN users ag ON ae.agent_id = ag.user_id
+         WHERE ae.enrollment_id = ?`,
         [enrollmentId]
     );
     return rows[0];
