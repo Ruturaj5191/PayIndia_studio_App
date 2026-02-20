@@ -238,3 +238,16 @@
 2026-02-19T05:51:14.657Z | GET /api/aadhar/list | 200 | 15ms | ::1
 2026-02-19T05:53:09.861Z | PUT /api/aadhar/process/1 | 400 | 13ms | ::1
 2026-02-19T06:02:18.901Z | PUT /api/aadhar/process/1 | 200 | 25ms | ::1
+2026-02-20T08:56:38.388Z | POST /api/auth/send-otp | 200 | 148ms | ::1
+2026-02-20T09:24:04.217Z | POST /api/auth/send-otp | 200 | 534ms | ::1
+2026-02-20T10:10:49.051Z | POST /api/auth/send-otp | 500 | 295ms | ::1
+2026-02-20T10:17:42.347Z | POST /api/auth/send-otp | 500 | 631ms | ::1
+2026-02-20T10:23:22.811Z | POST /api/auth/send-otp | 500 | 647ms | ::1
+2026-02-20T10:55:15.690Z | POST /api/auth/send-otp | 500 | 1072ms | ::1
+2026-02-20T10:58:16.758Z | POST /api/auth/send-otp | 500 | 403ms | ::1
+2026-02-20T11:03:39.199Z | POST /api/auth/send-otp | 500 | 582ms | ::1
+2026-02-20T11:03:56.046Z | POST /api/auth/send-otp | 500 | 487ms | ::1
+2026-02-20T11:11:45.397Z | POST /api/auth/send-otp | 500 | 381ms | ::1
+2026-02-20T11:15:15.098Z | POST /api/auth/send-otp | 500 | 247ms | ::1
+2026-02-20T11:28:32.654Z | POST /api/auth/send-otp | 200 | 557ms | ::1
+2026-02-20T11:34:55.551Z | POST /api/auth/send-otp | 200 | 540ms | ::1

@@ -1,5 +1,6 @@
 const pool = require("../config/db");
 const jwt = require("jsonwebtoken");
+const notificationService = require("../services/notification.service");
 
 const generateOTP = () =>
   Math.floor(100000 + Math.random() * 900000).toString();
@@ -18,10 +19,25 @@ exports.sendOTP = async (req, res) => {
       [mobile, otp]
     );
 
-    console.log("OTP (dev):", otp); // integrate SMS later
+    // DLT Template: Your password has been successfully reset. Please log in with your new password: {#var#} - WRKNAI, Namastey
+    const message = `Your password has been successfully reset. Please log in with your new password: ${otp} - WRKNAI, Namastey`;
+
+    // Send SMS via Dreamz Technology API
+    const smsResult = await notificationService.sendSMS(mobile, message);
+
+    if (typeof smsResult === 'string' && smsResult.startsWith('error')) {
+      console.error("❌ SMS API ERROR:", smsResult);
+      return res.status(500).json({
+        message: "SMS provider error",
+        error: smsResult
+      });
+    }
+
+    console.log("OTP (dev):", otp);
 
     res.json({ message: "OTP sent successfully" });
   } catch (err) {
+    console.error("❌ SEND OTP ERROR:", err);
     res.status(500).json({ message: "OTP send failed" });
   }
 };
