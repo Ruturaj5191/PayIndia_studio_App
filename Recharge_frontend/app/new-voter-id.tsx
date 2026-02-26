@@ -87,7 +87,7 @@ export default function NewVoterIDScreen() {
                 setCurrentStep(currentStep - 1);
                 return true;
             } else {
-                router.replace("/voter-id-services");
+                router.back();
                 return true;
             }
         };
@@ -209,7 +209,7 @@ export default function NewVoterIDScreen() {
         if (currentStep > 1) {
             setCurrentStep(currentStep - 1);
         } else {
-            router.replace("/voter-id-services");
+            router.back();
         }
     };
 

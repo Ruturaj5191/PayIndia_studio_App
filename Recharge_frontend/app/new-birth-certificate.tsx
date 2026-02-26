@@ -120,7 +120,7 @@ export default function NewBirthCertificateScreen() {
                 setCurrentStep(currentStep - 1);
                 return true;
             } else {
-                router.replace("/birth-certificate-services");
+                router.back();
                 return true;
             }
         };
@@ -322,7 +322,7 @@ export default function NewBirthCertificateScreen() {
                 <View style={styles.header}>
                     <TouchableOpacity style={styles.backButton} onPress={() => {
                         if (currentStep > 1) setCurrentStep(currentStep - 1);
-                        else router.replace("/birth-certificate-services");
+                        else router.back();
                     }}>
                         <Ionicons name="arrow-back" size={24} color="#1A1A1A" />
                     </TouchableOpacity>

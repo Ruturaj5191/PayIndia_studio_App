@@ -117,7 +117,7 @@ export default function NewMarriageCertificateScreen() {
                 setCurrentStep(currentStep - 1);
                 return true;
             } else {
-                router.replace("/marriage-certificate-services");
+                router.back();
                 return true;
             }
         };
@@ -299,7 +299,7 @@ export default function NewMarriageCertificateScreen() {
                 <View style={styles.header}>
                     <TouchableOpacity style={styles.backButton} onPress={() => {
                         if (currentStep > 1) setCurrentStep(currentStep - 1);
-                        else router.replace("/marriage-certificate-services");
+                        else router.back();
                     }}>
                         <Ionicons name="arrow-back" size={24} color="#1A1A1A" />
                     </TouchableOpacity>

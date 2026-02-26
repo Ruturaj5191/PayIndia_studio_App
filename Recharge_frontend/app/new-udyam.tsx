@@ -57,7 +57,7 @@ export default function NewUdyamRegistrationScreen() {
                 setStep(step - 1);
                 return true;
             } else {
-                router.replace("/udyam-services");
+                router.back();
                 return true;
             }
         };
@@ -149,7 +149,7 @@ export default function NewUdyamRegistrationScreen() {
         if (step > 1) {
             setStep(step - 1);
         } else {
-            router.replace("/udyam-services");
+            router.back();
         }
     };
 

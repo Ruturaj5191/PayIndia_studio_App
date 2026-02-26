@@ -122,7 +122,7 @@ export default function New8AExtractScreen() {
                 setCurrentStep(currentStep - 1);
                 return true;
             } else {
-                router.replace("/8a-extract-services");
+                router.back();
                 return true;
             }
         };
@@ -309,7 +309,7 @@ export default function New8AExtractScreen() {
                         } else if (currentStep > 1) {
                             setCurrentStep(currentStep - 1);
                         } else {
-                            router.replace("/8a-extract-services");
+                            router.back();
                         }
                     }}>
                         <Ionicons name={isEditingMode ? "close" : "arrow-back"} size={24} color="#1A1A1A" />

@@ -1,9 +1,10 @@
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
-import { useRouter } from "expo-router";
+import { useRouter, useFocusEffect } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import React, { useEffect, useRef, useState } from "react";
 import {
+  BackHandler,
   Dimensions,
   Image,
   SafeAreaView,
@@ -25,6 +26,23 @@ export default function HomeScreen({
   const scrollViewRef = useRef<ScrollView>(null);
   const [currentAdIndex, setCurrentAdIndex] = useState(0);
   const [hasNewNotifications, setHasNewNotifications] = useState(true); // Default to true for demo
+
+  // Handle hardware back button to exit app from Home screen
+  useFocusEffect(
+    React.useCallback(() => {
+      const onBackPress = () => {
+        BackHandler.exitApp();
+        return true;
+      };
+
+      const backHandler = BackHandler.addEventListener(
+        "hardwareBackPress",
+        onBackPress
+      );
+
+      return () => backHandler.remove();
+    }, [])
+  );
 
   // Ads data
   const ads = [

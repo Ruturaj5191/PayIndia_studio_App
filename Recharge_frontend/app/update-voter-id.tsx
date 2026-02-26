@@ -75,8 +75,10 @@ export default function VoterIDUpdateScreen() {
     useEffect(() => {
         const backAction = () => {
             if (step > 1) { setStep(step - 1); return true; }
-            router.replace("/voter-id-services");
-            return true;
+            else {
+                router.back();
+                return true;
+            }
         };
         const backHandler = BackHandler.addEventListener("hardwareBackPress", backAction);
         return () => backHandler.remove();

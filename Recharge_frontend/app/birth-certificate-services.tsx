@@ -15,13 +15,10 @@ import {
 export default function BirthCertificateServicesScreen() {
     const router = useRouter();
 
-    const { from } = useLocalSearchParams();
-    const backPath = from === 'more-seva' ? '/more-seva' : '/(tabs)/explore';
-
     // Handle back navigation
     useEffect(() => {
         const backAction = () => {
-            router.replace(backPath as any);
+            router.back();
             return true;
         };
 
@@ -31,7 +28,7 @@ export default function BirthCertificateServicesScreen() {
         );
 
         return () => backHandler.remove();
-    }, [backPath]);
+    }, [router]);
 
     const handleStartApplication = () => {
         router.push('/new-birth-certificate');
@@ -45,7 +42,7 @@ export default function BirthCertificateServicesScreen() {
             <SafeAreaView style={styles.safeArea}>
                 {/* Header */}
                 <View style={styles.header}>
-                    <TouchableOpacity style={styles.backButton} onPress={() => router.replace(backPath as any)}>
+                    <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
                         <Ionicons name="arrow-back" size={24} color="#1A1A1A" />
                     </TouchableOpacity>
                     <View style={styles.headerCenter}>

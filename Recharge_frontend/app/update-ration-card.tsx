@@ -49,19 +49,22 @@ export default function UpdateRationCardScreen() {
     const [documents, setDocuments] = useState<any>({});
 
     // Handle back
+    const handleBack = () => {
+        if (currentStep > 1) {
+            setCurrentStep(currentStep - 1);
+        } else {
+            router.back();
+        }
+    };
+
     useEffect(() => {
         const backAction = () => {
             if (isSubmitted) {
                 router.replace("/ration-card-services");
                 return true;
             }
-            if (currentStep > 1) {
-                setCurrentStep(currentStep - 1);
-                return true;
-            } else {
-                router.replace("/ration-card-services");
-                return true;
-            }
+            handleBack();
+            return true;
         };
         const backHandler = BackHandler.addEventListener("hardwareBackPress", backAction);
         return () => backHandler.remove();

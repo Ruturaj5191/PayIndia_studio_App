@@ -103,7 +103,7 @@ export default function NewSatbaraExtractScreen() {
                 setCurrentStep(currentStep - 1);
                 return true;
             } else {
-                router.replace("/satbara-services");
+                router.back();
                 return true;
             }
         };
@@ -191,19 +191,17 @@ export default function NewSatbaraExtractScreen() {
             } else {
                 setCurrentStep(3);
             }
-        } else {
-            if (!formData.finalConfirmation) {
-                Alert.alert("Confirmation", "Please confirm that all details are accurate");
-                return;
-            }
+        }
+    };
 
-            setIsSubmitting(true);
-            setTimeout(() => {
-                const refId = "SAT" + Math.random().toString(36).substr(2, 9).toUpperCase();
-                setApplicationId(refId);
-                setIsSubmitting(false);
-                setIsSubmitted(true);
-            }, 2000);
+    const handleBack = () => {
+        if (isEditingMode) {
+            setCurrentStep(3);
+            setIsEditingMode(false);
+        } else if (currentStep > 1) {
+            setCurrentStep(currentStep - 1);
+        } else {
+            router.back();
         }
     };
 
@@ -268,16 +266,7 @@ export default function NewSatbaraExtractScreen() {
             <StatusBar style="dark" />
             <SafeAreaView style={styles.safeArea}>
                 <View style={styles.header}>
-                    <TouchableOpacity style={styles.backButton} onPress={() => {
-                        if (isEditingMode) {
-                            setCurrentStep(3);
-                            setIsEditingMode(false);
-                        } else if (currentStep > 1) {
-                            setCurrentStep(currentStep - 1);
-                        } else {
-                            router.replace("/satbara-services");
-                        }
-                    }}>
+                    <TouchableOpacity style={styles.backButton} onPress={handleBack}>
                         <Ionicons name={isEditingMode ? "close" : "arrow-back"} size={24} color="#1A1A1A" />
                     </TouchableOpacity>
                     <View style={styles.headerCenter}>

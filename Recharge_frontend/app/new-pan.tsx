@@ -50,7 +50,7 @@ export default function NewPANScreen() {
                 setCurrentStep(currentStep - 1);
                 return true;
             } else {
-                router.replace("/pan-card-services");
+                router.back();
                 return true;
             }
         };
@@ -168,7 +168,7 @@ export default function NewPANScreen() {
         if (currentStep > 1) {
             setCurrentStep(currentStep - 1);
         } else {
-            router.replace("/pan-card-services");
+            router.back();
         }
     };
 

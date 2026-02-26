@@ -29,11 +29,11 @@ export default function MoreSevaScreen() {
         checkAuth();
     }, []);
 
-    // Handle hardware back button - redirect to explore screen
+    // Handle hardware back button - return to previous screen
     useFocusEffect(
         React.useCallback(() => {
             const onBackPress = () => {
-                router.push("/(tabs)/explore");
+                router.back();
                 return true;
             };
 
@@ -47,7 +47,7 @@ export default function MoreSevaScreen() {
     );
 
     const handleBackPress = () => {
-        router.push("/(tabs)/explore");
+        router.back();
     };
 
     return (

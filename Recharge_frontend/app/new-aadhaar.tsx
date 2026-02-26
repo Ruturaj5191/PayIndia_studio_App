@@ -100,7 +100,7 @@ export default function NewAadhaarScreen() {
                 setCurrentStep(currentStep - 1);
                 return true;
             } else {
-                router.replace("/aadhaar-services");
+                router.back();
                 return true;
             }
         };
@@ -235,7 +235,7 @@ export default function NewAadhaarScreen() {
         if (currentStep > 1) {
             setCurrentStep(currentStep - 1);
         } else {
-            router.replace("/aadhaar-services");
+            router.back();
         }
     };
 

@@ -112,7 +112,7 @@ export default function NewRationCardScreen() {
                 setCurrentStep(currentStep - 1);
                 return true;
             } else {
-                router.replace("/ration-card-services");
+                router.back();
                 return true;
             }
         };
@@ -274,7 +274,7 @@ export default function NewRationCardScreen() {
             <SafeAreaView style={styles.safeArea}>
                 {/* Header */}
                 <View style={styles.header}>
-                    <TouchableOpacity style={styles.backButton} onPress={() => currentStep > 1 ? setCurrentStep(currentStep - 1) : router.replace("/ration-card-services")}>
+                    <TouchableOpacity style={styles.backButton} onPress={() => currentStep > 1 ? setCurrentStep(currentStep - 1) : router.back()}>
                         <Ionicons name="arrow-back" size={24} color="#1A1A1A" />
                     </TouchableOpacity>
                     <View style={styles.headerCenter}>

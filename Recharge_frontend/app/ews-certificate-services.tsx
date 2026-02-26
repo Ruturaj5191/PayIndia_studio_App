@@ -14,13 +14,10 @@ import {
 
 export default function EWSCertificateServicesScreen() {
     const router = useRouter();
-    const { from } = useLocalSearchParams();
-    const backPath = from === 'more-seva' ? '/more-seva' : '/(tabs)/explore';
-
     // Handle back navigation
     useEffect(() => {
         const backAction = () => {
-            router.replace(backPath as any);
+            router.back();
             return true;
         };
 
@@ -30,7 +27,7 @@ export default function EWSCertificateServicesScreen() {
         );
 
         return () => backHandler.remove();
-    }, [backPath]);
+    }, [router]);
 
     return (
         <View style={styles.container}>
@@ -40,7 +37,7 @@ export default function EWSCertificateServicesScreen() {
             <SafeAreaView style={styles.safeArea}>
                 {/* Header */}
                 <View style={styles.header}>
-                    <TouchableOpacity style={styles.backButton} onPress={() => router.replace(backPath as any)}>
+                    <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
                         <Ionicons name="arrow-back" size={24} color="#1A1A1A" />
                     </TouchableOpacity>
                     <View style={styles.headerCenter}>

@@ -114,7 +114,13 @@ export default function LoginScreen() {
         if (response.ok) {
           console.log("Login successful. Token:", data.token);
           console.log("User data:", data.user);
-          // TODO: Store token securely
+
+          // Store token and user data securely
+          await AsyncStorage.setItem("userToken", data.token);
+          if (data.user) {
+            await AsyncStorage.setItem("userData", JSON.stringify(data.user));
+          }
+
           router.replace("/(tabs)/explore");
         } else {
           alert(data.message || "Invalid OTP. Please try again.");

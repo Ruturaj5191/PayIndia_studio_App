@@ -14,23 +14,20 @@ import {
 
 export default function RationCardServicesScreen() {
     const router = useRouter();
-    const { from } = useLocalSearchParams();
-    const backPath = from === "more-seva" ? "/more-seva" : "/(tabs)/explore";
-
-    // Handle hardware back button
+    // Handle back navigation
     useEffect(() => {
         const backAction = () => {
-            router.replace(backPath as any);
+            router.back();
             return true;
         };
 
         const backHandler = BackHandler.addEventListener(
-            "hardwareBackPress",
-            backAction,
+            'hardwareBackPress',
+            backAction
         );
 
         return () => backHandler.remove();
-    }, [backPath]);
+    }, [router]);
 
     return (
         <View style={styles.container}>
@@ -42,7 +39,7 @@ export default function RationCardServicesScreen() {
                 <View style={styles.header}>
                     <TouchableOpacity
                         style={styles.backButton}
-                        onPress={() => router.replace(backPath as any)}
+                        onPress={() => router.back()}
                     >
                         <Ionicons name="arrow-back" size={24} color="#1A1A1A" />
                     </TouchableOpacity>
