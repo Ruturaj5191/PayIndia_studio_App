@@ -105,7 +105,7 @@ export default function NewRationCardScreen() {
     useEffect(() => {
         const backAction = () => {
             if (isSubmitted) {
-                router.replace("/ration-card-services");
+                router.back();
                 return true;
             }
             if (currentStep > 1) {
@@ -256,7 +256,7 @@ export default function NewRationCardScreen() {
                         </TouchableOpacity>
                     </View>
 
-                    <TouchableOpacity style={styles.mainBtn} onPress={() => router.replace("/ration-card-services")}>
+                    <TouchableOpacity style={styles.mainBtn} onPress={() => router.back()}>
                         <LinearGradient colors={['#0D47A1', '#1565C0']} style={styles.btnGrad}>
                             <Text style={styles.mainBtnText}>Return to Services</Text>
                             <Ionicons name="arrow-forward" size={18} color="#FFF" />

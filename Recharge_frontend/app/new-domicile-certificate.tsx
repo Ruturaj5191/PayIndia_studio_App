@@ -296,7 +296,7 @@ export default function NewDomicileCertificateScreen() {
                         </TouchableOpacity>
                     </View>
 
-                    <TouchableOpacity style={styles.mainBtn} onPress={() => router.replace("/domicile-certificate-services")}>
+                    <TouchableOpacity style={styles.mainBtn} onPress={() => router.back()}>
                         <LinearGradient colors={['#0D47A1', '#1565C0']} style={styles.btnGrad}>
                             <Text style={styles.mainBtnText}>Return to Services</Text>
                             <Ionicons name="arrow-forward" size={18} color="#FFF" />
@@ -343,12 +343,8 @@ export default function NewDomicileCertificateScreen() {
                                 <Label text="Aadhaar Number *" />
                                 <Input value={formData.aadhaarNumber} onChangeText={(v: string) => setFormData({ ...formData, aadhaarNumber: v.replace(/\D/g, '').substring(0, 12) })} placeholder="12-digit Aadhaar" icon="card-outline" keyboardType="number-pad" maxLength={12} />
 
-                                <View style={styles.inputRow}>
-                                    <View style={{ flex: 1, marginRight: 10 }}>
-                                        <Label text="Date of Birth *" />
-                                        <Input value={formData.dob} onChangeText={(v: string) => setFormData({ ...formData, dob: formatDate(v) })} placeholder="DD/MM/YYYY" icon="calendar-outline" keyboardType="number-pad" maxLength={10} />
-                                    </View>
-                                </View>
+                                <Label text="Date of Birth *" />
+                                <Input value={formData.dob} onChangeText={(v: string) => setFormData({ ...formData, dob: formatDate(v) })} placeholder="DD/MM/YYYY" icon="calendar-outline" keyboardType="number-pad" maxLength={10} />
 
                                 <Label text="Gender *" />
                                 <View style={[styles.radioGroup, { marginBottom: 12 }]}>

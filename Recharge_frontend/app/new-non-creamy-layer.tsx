@@ -302,7 +302,7 @@ export default function NewNonCreamyLayerScreen() {
                             <Text style={styles.actionText}>Track{"\n"}Status</Text>
                         </TouchableOpacity>
                     </View>
-                    <TouchableOpacity style={styles.mainBtn} onPress={() => router.replace("/non-creamy-layer-services")}>
+                    <TouchableOpacity style={styles.mainBtn} onPress={() => router.back()}>
                         <LinearGradient colors={['#0D47A1', '#1565C0']} style={styles.btnGrad}>
                             <Text style={styles.mainBtnText}>Return to Services</Text>
                             <Ionicons name="arrow-forward" size={18} color="#FFF" />

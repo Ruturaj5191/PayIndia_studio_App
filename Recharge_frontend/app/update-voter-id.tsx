@@ -244,7 +244,7 @@ export default function VoterIDUpdateScreen() {
                         </TouchableOpacity>
                     </View>
 
-                    <TouchableOpacity style={s.mainBtn} onPress={() => router.replace("/voter-id-services")}>
+                    <TouchableOpacity style={s.mainBtn} onPress={() => router.back()}>
                         <LinearGradient colors={['#0D47A1', '#1565C0']} style={s.btnGrad}>
                             <Text style={s.mainBtnText}>Return to Services</Text>
                             <Ionicons name="arrow-forward" size={18} color="#FFF" />

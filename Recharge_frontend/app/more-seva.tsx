@@ -284,27 +284,35 @@ export default function MoreSevaScreen() {
                         <View style={styles.servicesGrid}>
                             <TouchableOpacity
                                 style={styles.serviceCard}
-                                onPress={() => router.push("/electricity-bill")}
+                                onPress={() => router.push("/electricity-services")}
                             >
                                 <View style={styles.iconCircle}>
-                                    <Ionicons name="bulb-outline" size={30} color="#0D47A1" />
+                                    <MaterialCommunityIcons
+                                        name="flash-outline"
+                                        size={30}
+                                        color="#0D47A1"
+                                    />
                                 </View>
-                                <Text style={styles.serviceText}>Electricity{"\n"}Bill</Text>
+                                <Text style={styles.serviceText}>Electricity{"\n"}Services</Text>
                             </TouchableOpacity>
 
                             <TouchableOpacity
                                 style={styles.serviceCard}
-                                onPress={() => router.push("/more-services")}
+                                onPress={() => router.push("/water-services")}
                             >
                                 <View style={styles.iconCircle}>
-                                    <Ionicons name="water-outline" size={30} color="#0D47A1" />
+                                    <MaterialCommunityIcons
+                                        name="water-outline"
+                                        size={30}
+                                        color="#0D47A1"
+                                    />
                                 </View>
-                                <Text style={styles.serviceText}>Water{"\n"}Bill</Text>
+                                <Text style={styles.serviceText}>Water{"\n"}Services</Text>
                             </TouchableOpacity>
 
                             <TouchableOpacity
                                 style={styles.serviceCard}
-                                onPress={() => router.push("/lpg-cylinder")}
+                                onPress={() => router.push("/gas-services")}
                             >
                                 <View style={styles.iconCircle}>
                                     <MaterialCommunityIcons
@@ -313,12 +321,12 @@ export default function MoreSevaScreen() {
                                         color="#0D47A1"
                                     />
                                 </View>
-                                <Text style={styles.serviceText}>Gas{"\n"}Bill</Text>
+                                <Text style={styles.serviceText}>Gas{"\n"}Services</Text>
                             </TouchableOpacity>
 
                             <TouchableOpacity
                                 style={styles.serviceCard}
-                                onPress={() => router.push("/more-services")}
+                                onPress={() => router.push("/recharge-services")}
                             >
                                 <View style={styles.iconCircle}>
                                     <Ionicons
@@ -327,7 +335,7 @@ export default function MoreSevaScreen() {
                                         color="#0D47A1"
                                     />
                                 </View>
-                                <Text style={styles.serviceText}>Mobile / DTH{"\n"}Recharge</Text>
+                                <Text style={styles.serviceText}>Recharge{"\n"}Services</Text>
                             </TouchableOpacity>
                         </View>
                     </View>
@@ -365,7 +373,10 @@ export default function MoreSevaScreen() {
                                 <Text style={styles.serviceText}>8A{"\n"}Extract</Text>
                             </TouchableOpacity>
 
-                            <TouchableOpacity style={styles.serviceCard}>
+                            <TouchableOpacity
+                                style={styles.serviceCard}
+                                onPress={() => router.push("/property-tax-services?from=more-seva")}
+                            >
                                 <View style={styles.iconCircle}>
                                     <MaterialCommunityIcons
                                         name="home-city-outline"
@@ -376,10 +387,13 @@ export default function MoreSevaScreen() {
                                 <Text style={styles.serviceText}>Property{"\n"}Tax</Text>
                             </TouchableOpacity>
 
-                            <TouchableOpacity style={styles.serviceCard}>
+                            <TouchableOpacity
+                                style={styles.serviceCard}
+                                onPress={() => router.push("/ferfar-services?from=more-seva")}
+                            >
                                 <View style={styles.iconCircle}>
                                     <MaterialCommunityIcons
-                                        name="map-outline"
+                                        name="map-marker-distance"
                                         size={30}
                                         color="#0D47A1"
                                     />
@@ -423,7 +437,10 @@ export default function MoreSevaScreen() {
                                 <Text style={styles.serviceText}>Udyam{"\n"}Registration</Text>
                             </TouchableOpacity>
 
-                            <TouchableOpacity style={styles.serviceCard}>
+                            <TouchableOpacity
+                                style={styles.serviceCard}
+                                onPress={() => router.push("/pm-kisan-services")}
+                            >
                                 <View style={styles.iconCircle}>
                                     <MaterialCommunityIcons
                                         name="sprout-outline"
@@ -434,7 +451,10 @@ export default function MoreSevaScreen() {
                                 <Text style={styles.serviceText}>PM{"\n"}Kisan</Text>
                             </TouchableOpacity>
 
-                            <TouchableOpacity style={styles.serviceCard}>
+                            <TouchableOpacity
+                                style={styles.serviceCard}
+                                onPress={() => router.navigate("/senior-citizen-services")}
+                            >
                                 <View style={styles.iconCircle}>
                                     <MaterialCommunityIcons
                                         name="account-tie-outline"
@@ -447,29 +467,10 @@ export default function MoreSevaScreen() {
                                 </Text>
                             </TouchableOpacity>
 
-                            <TouchableOpacity style={styles.serviceCard}>
-                                <View style={styles.iconCircle}>
-                                    <MaterialCommunityIcons
-                                        name="bank-outline"
-                                        size={30}
-                                        color="#0D47A1"
-                                    />
-                                </View>
-                                <Text style={styles.serviceText}>Janhan{"\n"}Scheme</Text>
-                            </TouchableOpacity>
-
-                            <TouchableOpacity style={styles.serviceCard}>
-                                <View style={styles.iconCircle}>
-                                    <MaterialCommunityIcons
-                                        name="heart-flash"
-                                        size={30}
-                                        color="#0D47A1"
-                                    />
-                                </View>
-                                <Text style={styles.serviceText}>Ayushman{"\n"}Bharat</Text>
-                            </TouchableOpacity>
-
-                            <TouchableOpacity style={styles.serviceCard}>
+                            <TouchableOpacity
+                                style={styles.serviceCard}
+                                onPress={() => router.push("/employment-services")}
+                            >
                                 <View style={styles.iconCircle}>
                                     <MaterialCommunityIcons
                                         name="briefcase-outline"
@@ -477,7 +478,23 @@ export default function MoreSevaScreen() {
                                         color="#0D47A1"
                                     />
                                 </View>
-                                <Text style={styles.serviceText}>Employment{"\n"}Reg</Text>
+                                <Text style={styles.serviceText}>
+                                    Employment{"\n"}Registration
+                                </Text>
+                            </TouchableOpacity>
+
+                            <TouchableOpacity
+                                style={styles.serviceCard}
+                                onPress={() => router.navigate("/ayushman-services")}
+                            >
+                                <View style={styles.iconCircle}>
+                                    <MaterialCommunityIcons
+                                        name="heart-flash"
+                                        size={30}
+                                        color="#0D47A1"
+                                    />
+                                </View>
+                                <Text style={styles.serviceText}>Ayushman{"\n"}Bharat (PM-JAY)</Text>
                             </TouchableOpacity>
                         </View>
                     </View>

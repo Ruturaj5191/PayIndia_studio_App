@@ -222,7 +222,7 @@ export default function NewPANScreen() {
                         </TouchableOpacity>
                     </View>
 
-                    <TouchableOpacity style={styles.mainBtn} onPress={() => router.replace("/pan-card-services")}>
+                    <TouchableOpacity style={styles.mainBtn} onPress={() => router.back()}>
                         <LinearGradient colors={['#0D47A1', '#1565C0']} style={styles.btnGrad}>
                             <Text style={styles.mainBtnText}>Return to Services</Text>
                             <Ionicons name="arrow-forward" size={18} color="#FFF" />

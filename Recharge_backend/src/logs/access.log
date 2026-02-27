@@ -455,3 +455,8 @@
 2026-02-26T09:31:04.784Z | POST /api/auth/verify-otp | 200 | 8ms | ::ffff:192.168.1.32
 2026-02-26T09:33:42.372Z | POST /api/auth/send-otp | 200 | 10ms | ::ffff:192.168.1.32
 2026-02-26T09:33:49.647Z | POST /api/auth/verify-otp | 200 | 12ms | ::ffff:192.168.1.32
+2026-02-26T09:40:22.180Z | POST /api/auth/send-otp | 200 | 6ms | ::ffff:192.168.1.32
+2026-02-26T09:40:36.476Z | POST /api/auth/verify-otp | 200 | 19ms | ::ffff:192.168.1.32
+2026-02-26T09:40:42.227Z | GET /api/user/profile | 200 | 7ms | ::ffff:192.168.1.32
+2026-02-27T03:56:34.381Z | POST /api/auth/send-otp | 200 | 17ms | ::ffff:192.168.1.22
+2026-02-27T03:56:44.725Z | POST /api/auth/verify-otp | 200 | 51ms | ::ffff:192.168.1.22

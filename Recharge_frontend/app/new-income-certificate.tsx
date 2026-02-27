@@ -335,7 +335,7 @@ export default function NewIncomeCertificateScreen() {
                         </TouchableOpacity>
                     </View>
 
-                    <TouchableOpacity style={styles.mainBtn} onPress={() => router.replace("/income-certificate-services")}>
+                    <TouchableOpacity style={styles.mainBtn} onPress={() => router.back()}>
                         <LinearGradient colors={['#0D47A1', '#1565C0']} style={styles.btnGrad}>
                             <Text style={styles.mainBtnText}>Return to Services</Text>
                             <Ionicons name="arrow-forward" size={18} color="#FFF" />
@@ -397,31 +397,27 @@ export default function NewIncomeCertificateScreen() {
                                     icon="card-outline"
                                 />
 
-                                <View style={styles.inputRow}>
-                                    <View style={{ flex: 1, marginRight: 10 }}>
-                                        <Label text="Date of Birth *" />
-                                        <Input
-                                            value={formData.dob}
-                                            onChangeText={handleDOBChange}
-                                            placeholder="DD/MM/YYYY"
-                                            maxLength={10}
-                                            keyboardType="number-pad"
-                                        />
-                                    </View>
-                                    <View style={{ flex: 1 }}>
-                                        <Label text="Gender *" />
-                                        <View style={styles.genderContainer}>
-                                            {["Male", "Female", "Other"].map((g) => (
-                                                <TouchableOpacity
-                                                    key={g}
-                                                    style={[styles.genderBox, formData.gender === g && styles.genderBoxActive]}
-                                                    onPress={() => setFormData({ ...formData, gender: g })}
-                                                >
-                                                    <Text style={[styles.genderText, formData.gender === g && styles.genderTextActive]}>{g}</Text>
-                                                </TouchableOpacity>
-                                            ))}
-                                        </View>
-                                    </View>
+                                <Label text="Date of Birth *" />
+                                <Input
+                                    value={formData.dob}
+                                    onChangeText={handleDOBChange}
+                                    placeholder="DD/MM/YYYY"
+                                    maxLength={10}
+                                    keyboardType="number-pad"
+                                    icon="calendar-outline"
+                                />
+
+                                <Label text="Gender *" />
+                                <View style={styles.genderContainer}>
+                                    {["Male", "Female", "Other"].map((g) => (
+                                        <TouchableOpacity
+                                            key={g}
+                                            style={[styles.genderBox, formData.gender === g && styles.genderBoxActive]}
+                                            onPress={() => setFormData({ ...formData, gender: g })}
+                                        >
+                                            <Text style={[styles.genderText, formData.gender === g && styles.genderTextActive]}>{g}</Text>
+                                        </TouchableOpacity>
+                                    ))}
                                 </View>
 
                                 <Label text="Mobile Number *" />
