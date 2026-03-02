@@ -16,6 +16,7 @@ import {
     Alert,
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { API_ENDPOINTS } from "../../constants/api";
 
 interface BankAccount {
     id: number;
@@ -58,7 +59,7 @@ export default function BankAccountsScreen() {
         setError("");
         try {
             const token = await AsyncStorage.getItem("userToken");
-            const response = await fetch("http://192.168.1.26:5000/api/banking/accounts", {
+            const response = await fetch(API_ENDPOINTS.BANK_ACCOUNTS, {
                 headers: {
                     Authorization: `Bearer ${token}`,
                 },
@@ -105,8 +106,49 @@ export default function BankAccountsScreen() {
 
     const handleRemoveAccount = () => {
         if (!selectedAccount) return;
-        setBankAccounts(bankAccounts.filter((acc) => acc.id !== selectedAccount.id));
-        setShowOptionsModal(false);
+
+        Alert.alert(
+            "Remove Account",
+            `Are you sure you want to remove your ${selectedAccount.bankName} account (${selectedAccount.accountNumber})?`,
+            [
+                { text: "Cancel", style: "cancel" },
+                {
+                    text: "Remove",
+                    style: "destructive",
+                    onPress: async () => {
+                        setIsLoading(true);
+                        try {
+                            const token = await AsyncStorage.getItem("userToken");
+                            const response = await fetch(API_ENDPOINTS.REMOVE_ACCOUNT, {
+                                method: "DELETE",
+                                headers: {
+                                    "Content-Type": "application/json",
+                                    Authorization: `Bearer ${token}`,
+                                },
+                                body: JSON.stringify({
+                                    account_id: selectedAccount.id,
+                                }),
+                            });
+
+                            const data = await response.json();
+
+                            if (response.ok) {
+                                Alert.alert("Success", "Bank account removed successfully");
+                                setBankAccounts(bankAccounts.filter((acc) => acc.id !== selectedAccount.id));
+                            } else {
+                                Alert.alert("Error", data.message || "Failed to remove account");
+                            }
+                        } catch (err) {
+                            console.error("Error removing account:", err);
+                            Alert.alert("Error", "Server error. Please try again later.");
+                        } finally {
+                            setIsLoading(false);
+                            setShowOptionsModal(false);
+                        }
+                    },
+                },
+            ]
+        );
     };
 
     return (

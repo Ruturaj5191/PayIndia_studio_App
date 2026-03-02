@@ -1,5 +1,5 @@
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
-import { Stack, useRouter } from 'expo-router';
+import { Stack, useRouter, useLocalSearchParams } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import React, { useEffect } from 'react';
 import {
@@ -18,7 +18,7 @@ export default function AadhaarServicesScreen() {
     // Handle back navigation
     useEffect(() => {
         const backAction = () => {
-            router.replace('/explore');
+            router.back();
             return true;
         };
 
@@ -28,7 +28,7 @@ export default function AadhaarServicesScreen() {
         );
 
         return () => backHandler.remove();
-    }, []);
+    }, [router]);
 
     // Handle New Aadhaar
     const handleNewAadhaar = () => {
@@ -37,7 +37,7 @@ export default function AadhaarServicesScreen() {
 
     // Handle Aadhaar Update
     const handleAadhaarUpdate = () => {
-        router.push('/aadhaar-update');
+        router.push('/update-aadhaar');
     };
 
     return (
@@ -48,7 +48,7 @@ export default function AadhaarServicesScreen() {
             <SafeAreaView style={styles.safeArea}>
                 {/* Header */}
                 <View style={styles.header}>
-                    <TouchableOpacity style={styles.backButton} onPress={() => router.replace('/explore')}>
+                    <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
                         <Ionicons name="arrow-back" size={24} color="#1A1A1A" />
                     </TouchableOpacity>
                     <View style={styles.headerCenter}>

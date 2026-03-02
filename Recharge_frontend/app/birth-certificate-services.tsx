@@ -1,5 +1,5 @@
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
-import { Stack, useRouter } from 'expo-router';
+import { Stack, useRouter, useLocalSearchParams } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import React, { useEffect } from 'react';
 import {
@@ -12,13 +12,13 @@ import {
     View,
 } from 'react-native';
 
-export default function IncomeCertificateScreen() {
+export default function BirthCertificateServicesScreen() {
     const router = useRouter();
 
     // Handle back navigation
     useEffect(() => {
         const backAction = () => {
-            router.replace('/explore');
+            router.back();
             return true;
         };
 
@@ -28,14 +28,10 @@ export default function IncomeCertificateScreen() {
         );
 
         return () => backHandler.remove();
-    }, []);
+    }, [router]);
 
-    const handleApplyNow = () => {
-        router.push('/income-certificate-form');
-    };
-
-    const handleTrackStatus = () => {
-        // Implement track status logic or navigate to status screen
+    const handleStartApplication = () => {
+        router.push('/new-birth-certificate');
     };
 
     return (
@@ -46,12 +42,12 @@ export default function IncomeCertificateScreen() {
             <SafeAreaView style={styles.safeArea}>
                 {/* Header */}
                 <View style={styles.header}>
-                    <TouchableOpacity style={styles.backButton} onPress={() => router.replace('/explore')}>
+                    <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
                         <Ionicons name="arrow-back" size={24} color="#1A1A1A" />
                     </TouchableOpacity>
                     <View style={styles.headerCenter}>
-                        <Text style={styles.headerTitle}>Income Certificate</Text>
-                        <Text style={styles.headerSubtitle}>Apply for income certificate issued by revenue authority</Text>
+                        <Text style={styles.headerTitle}>Birth Certificate Services</Text>
+                        <Text style={styles.headerSubtitle}>Apply for official birth registration certificate</Text>
                     </View>
                     <View style={styles.placeholder} />
                 </View>
@@ -60,110 +56,86 @@ export default function IncomeCertificateScreen() {
                     showsVerticalScrollIndicator={false}
                     contentContainerStyle={styles.scrollContent}
                 >
-                    {/* Information Card */}
+                    {/* Authority Information Card */}
                     <View style={styles.infoCard}>
                         <View style={styles.blueLeftBorder} />
                         <View style={styles.cardContent}>
                             <View style={styles.cardHeader}>
                                 <View style={styles.iconCircle}>
                                     <MaterialCommunityIcons
-                                        name="certificate-outline"
+                                        name="office-building"
                                         size={28}
-                                        color="#0A4DA3"
+                                        color="#0D47A1"
                                     />
                                 </View>
                                 <View style={styles.titleSection}>
-                                    <Text style={styles.cardMainTitle}>Revenue Department</Text>
+                                    <Text style={styles.cardTitle}>Civil Registration System</Text>
                                     <Text style={styles.cardSubtitle}>
-                                        Official Certificate Issuance
+                                        Authorized Support for Birth Registration
                                     </Text>
                                 </View>
                             </View>
 
-                            {/* Trust Badges */}
+                            {/* Trust Badges / Features */}
                             <View style={styles.badgesRow}>
                                 <View style={styles.badge}>
                                     <Ionicons name="checkmark-circle" size={16} color="#2E7D32" />
-                                    <Text style={styles.badgeText}>Digital India</Text>
+                                    <Text style={styles.badgeText}>Secure Application</Text>
                                 </View>
                                 <View style={styles.badge}>
                                     <Ionicons name="checkmark-circle" size={16} color="#2E7D32" />
-                                    <Text style={styles.badgeText}>QR Verified</Text>
+                                    <Text style={styles.badgeText}>Document Assisted</Text>
+                                </View>
+                                <View style={styles.badge}>
+                                    <Ionicons name="checkmark-circle" size={16} color="#2E7D32" />
+                                    <Text style={styles.badgeText}>Municipal Authority Processing</Text>
+                                </View>
+                                <View style={styles.badge}>
+                                    <Ionicons name="checkmark-circle" size={16} color="#2E7D32" />
+                                    <Text style={styles.badgeText}>Official Record Registration</Text>
                                 </View>
                             </View>
                         </View>
                     </View>
 
-                    {/* Apply Now Card */}
+                    {/* Service Card - New Application */}
                     <View style={styles.serviceCard}>
-                        <View style={styles.greenGradient}>
+                        <View style={styles.blueGradient}>
                             <View style={styles.serviceHeaderRow}>
                                 <View style={styles.serviceIcon}>
                                     <MaterialCommunityIcons
-                                        name="file-document-edit"
+                                        name="file-certificate"
                                         size={28}
-                                        color="#2E7D32"
+                                        color="#0D47A1"
                                     />
                                 </View>
                                 <View style={styles.serviceContent}>
-                                    <Text style={styles.serviceTitle}>New Application</Text>
-                                    <Text style={styles.serviceHindi}>उत्पन्न दाखला नवीन अर्ज</Text>
+                                    <Text style={styles.serviceTitle}>New Birth Certificate</Text>
+                                    <Text style={styles.serviceHindi}>नवीन जन्म प्रमाणपत्र</Text>
                                 </View>
                             </View>
 
                             <View style={styles.serviceBottomRow}>
-                                <Text style={styles.serviceDesc}>Process takes 7-10 working days</Text>
+                                <Text style={styles.serviceDesc}>Register birth and apply for official certificate</Text>
                                 <TouchableOpacity
-                                    style={styles.greenButton}
-                                    onPress={handleApplyNow}
+                                    style={styles.blueButton}
+                                    onPress={handleStartApplication}
                                 >
-                                    <Text style={styles.buttonTextGreen}>Apply Now</Text>
-                                    <Ionicons name="arrow-forward" size={16} color="#2E7D32" />
+                                    <Text style={styles.buttonTextBlue}>Start Application</Text>
+                                    <Ionicons name="arrow-forward" size={16} color="#0D47A1" />
                                 </TouchableOpacity>
                             </View>
                         </View>
                     </View>
 
-
-                    {/* Required Documents Section */}
-                    <View style={styles.whyChooseCard}>
-                        <View style={styles.whyChooseHeader}>
-                            <Ionicons name="information-circle" size={24} color="#0A4DA3" />
-                            <Text style={styles.whyChooseTitle}>Documents Required</Text>
-                        </View>
-
-                        <View style={styles.featuresGrid}>
-                            <View style={styles.featureRow}>
-                                <View style={styles.feature}>
-                                    <Ionicons name="checkmark-circle" size={18} color="#2E7D32" />
-                                    <Text style={styles.featureText}>Aadhaar Card (आधार)</Text>
-                                </View>
-                                <View style={styles.feature}>
-                                    <Ionicons name="checkmark-circle" size={18} color="#2E7D32" />
-                                    <Text style={styles.featureText}>Address Proof (पत्ता)</Text>
-                                </View>
-                            </View>
-                            <View style={styles.featureRow}>
-                                <View style={styles.feature}>
-                                    <Ionicons name="checkmark-circle" size={18} color="#2E7D32" />
-                                    <Text style={styles.featureText}>Ration Card (रेशन कार्ड)</Text>
-                                </View>
-                                <View style={styles.feature}>
-                                    <Ionicons name="checkmark-circle" size={18} color="#2E7D32" />
-                                    <Text style={styles.featureText}>Income Proof (उत्पन्न)</Text>
-                                </View>
-                            </View>
-                        </View>
-                    </View>
-
-                    {/* Service Fee Info Card */}
+                    {/* Important Note Section */}
                     <View style={styles.noteCard}>
                         <View style={styles.noteHeader}>
-                            <MaterialCommunityIcons name="currency-inr" size={20} color="#F57C00" />
-                            <Text style={styles.noteTitle}>Service Fee:</Text>
+                            <Ionicons name="information-circle" size={20} color="#EF6C00" />
+                            <Text style={styles.noteTitle}>Important Note:</Text>
                         </View>
                         <Text style={styles.noteText}>
-                            A nominal fee of ₹50 is applicable for this service. Digital signatures are legally valid.
+                            Birth registration must comply with municipal authority guidelines. Late registration may require affidavit and additional verification.
                         </Text>
                     </View>
 
@@ -220,7 +192,6 @@ const styles = StyleSheet.create({
         paddingHorizontal: 20,
     },
 
-    // Info Card with Blue Left Border
     infoCard: {
         flexDirection: 'row',
         backgroundColor: '#FFFFFF',
@@ -235,7 +206,7 @@ const styles = StyleSheet.create({
     },
     blueLeftBorder: {
         width: 4,
-        backgroundColor: '#0A4DA3',
+        backgroundColor: '#0D47A1',
     },
     cardContent: {
         flex: 1,
@@ -258,7 +229,7 @@ const styles = StyleSheet.create({
     titleSection: {
         flex: 1,
     },
-    cardMainTitle: {
+    cardTitle: {
         fontSize: 15,
         fontWeight: 'bold',
         color: '#1A1A1A',
@@ -295,12 +266,8 @@ const styles = StyleSheet.create({
         elevation: 2,
         overflow: 'hidden',
     },
-    greenGradient: {
-        backgroundColor: '#F1FBF4',
-        padding: 16,
-    },
-    orangeGradient: {
-        backgroundColor: '#FFF9F2',
+    blueGradient: {
+        backgroundColor: '#F1F8FE',
         padding: 16,
     },
     serviceHeaderRow: {
@@ -346,100 +313,41 @@ const styles = StyleSheet.create({
         fontSize: 12,
         color: '#777',
     },
-    greenButton: {
+    blueButton: {
         flexDirection: 'row',
         alignItems: 'center',
         gap: 6,
-        backgroundColor: '#E8F5E9',
+        backgroundColor: '#E3F2FD',
         paddingVertical: 8,
         paddingHorizontal: 16,
         borderRadius: 20,
         borderWidth: 1,
-        borderColor: '#C8E6C9',
+        borderColor: '#BBDEFB',
     },
-    orangeButton: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 6,
-        backgroundColor: '#FFF3E0',
-        paddingVertical: 8,
-        paddingHorizontal: 16,
-        borderRadius: 20,
-        borderWidth: 1,
-        borderColor: '#FFE0B2',
-    },
-    buttonTextGreen: {
+    buttonTextBlue: {
         fontSize: 14,
         fontWeight: 'bold',
-        color: '#2E7D32',
-    },
-    buttonTextOrange: {
-        fontSize: 14,
-        fontWeight: 'bold',
-        color: '#F57C00',
-    },
-
-    // Documents Section
-    whyChooseCard: {
-        backgroundColor: '#FFFFFF',
-        borderRadius: 16,
-        padding: 16,
-        marginBottom: 12,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.05,
-        shadowRadius: 5,
-        elevation: 2,
-    },
-    whyChooseHeader: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 10,
-        marginBottom: 12,
-    },
-    whyChooseTitle: {
-        fontSize: 16,
-        fontWeight: 'bold',
-        color: '#1A1A1A',
-    },
-    featuresGrid: {
-        gap: 8,
-    },
-    featureRow: {
-        flexDirection: 'row',
-        gap: 12,
-    },
-    feature: {
-        flex: 1,
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 6,
-    },
-    featureText: {
-        fontSize: 12,
-        color: '#666',
-        fontWeight: '500',
-        flex: 1,
+        color: '#0D47A1',
     },
 
     // Note Card
     noteCard: {
-        backgroundColor: '#FFF9E6',
+        backgroundColor: '#FFF8E1',
         borderRadius: 12,
-        padding: 12,
+        padding: 16,
         borderWidth: 1,
-        borderColor: '#FFE0B2',
+        borderColor: '#FFECB3',
     },
     noteHeader: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 6,
-        marginBottom: 4,
+        gap: 8,
+        marginBottom: 8,
     },
     noteTitle: {
         fontSize: 14,
         fontWeight: 'bold',
-        color: '#1A1A1A',
+        color: '#EF6C00',
     },
     noteText: {
         fontSize: 12,

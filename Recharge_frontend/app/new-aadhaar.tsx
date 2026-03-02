@@ -54,6 +54,10 @@ export default function NewAadhaarScreen() {
 
     // State
     const [currentStep, setCurrentStep] = useState(1);
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [isSubmitted, setIsSubmitted] = useState(false);
+    const [applicationId, setApplicationId] = useState("");
+
     const [documents, setDocuments] = useState<DocumentsState>({
         birthCertificate: null,
         schoolCertificate: null,
@@ -63,7 +67,7 @@ export default function NewAadhaarScreen() {
     const [formData, setFormData] = useState<FormDataType>({
         fullName: "",
         dob: "",
-        yob: "", // Year of Birth
+        yob: "",
         gender: "",
         address: "",
         houseNo: "",
@@ -96,7 +100,7 @@ export default function NewAadhaarScreen() {
                 setCurrentStep(currentStep - 1);
                 return true;
             } else {
-                router.replace("/aadhaar-services");
+                router.back();
                 return true;
             }
         };
@@ -120,7 +124,6 @@ export default function NewAadhaarScreen() {
             if (result.canceled === false && result.assets && result.assets[0]) {
                 const file = result.assets[0];
 
-                // Check file size (max 5MB)
                 if (file.size && file.size > 5 * 1024 * 1024) {
                     Alert.alert(
                         "File Too Large",
@@ -141,7 +144,6 @@ export default function NewAadhaarScreen() {
         }
     };
 
-    // Format DOB automatically
     const formatDOB = (text: string) => {
         const cleaned = text.replace(/\D/g, "");
         let formatted = cleaned;
@@ -154,7 +156,6 @@ export default function NewAadhaarScreen() {
         return formatted;
     };
 
-    // Calculate age to determine if minor
     const checkIsMinor = (dob: string) => {
         if (dob.length !== 10) return false;
         const [day, month, year] = dob.split("/").map(Number);
@@ -168,10 +169,8 @@ export default function NewAadhaarScreen() {
         return age < 18;
     };
 
-    // Handle step navigation
     const handleContinue = () => {
         if (currentStep === 1) {
-            // Validate Details
             if (
                 !formData.fullName ||
                 (!formData.dob && !formData.yob) ||
@@ -204,7 +203,6 @@ export default function NewAadhaarScreen() {
             }
             setCurrentStep(2);
         } else if (currentStep === 2) {
-            // Validate Documents
             if (!documents.birthCertificate) {
                 Alert.alert("Required", "Birth Certificate is mandatory");
                 return;
@@ -222,13 +220,14 @@ export default function NewAadhaarScreen() {
             }
             setCurrentStep(3);
         } else {
-            // Submit
-            Alert.alert(
-                "Success",
-                "Application submitted successfully!\n\nEnrollment ID: UID" +
-                Math.random().toString(36).substr(2, 9).toUpperCase(),
-            );
-            router.replace("/aadhaar-services");
+            setIsSubmitting(true);
+            // Simulate API call
+            setTimeout(() => {
+                const enrollmentId = "UID" + Math.random().toString(36).substr(2, 9).toUpperCase();
+                setApplicationId(enrollmentId);
+                setIsSubmitting(false);
+                setIsSubmitted(true);
+            }, 2000);
         }
     };
 
@@ -236,9 +235,52 @@ export default function NewAadhaarScreen() {
         if (currentStep > 1) {
             setCurrentStep(currentStep - 1);
         } else {
-            router.replace("/aadhaar-services");
+            router.back();
         }
     };
+
+    if (isSubmitted) {
+        return (
+            <View style={styles.container}>
+                <Stack.Screen options={{ headerShown: false }} />
+                <SafeAreaView style={styles.successContainer}>
+                    <View style={styles.successIconCircle}>
+                        <Ionicons name="checkmark-done-circle" size={80} color="#2E7D32" />
+                    </View>
+                    <Text style={styles.successTitle}>Application Submitted!</Text>
+                    <Text style={styles.successSubtitle}>Your Aadhaar enrollment application has been received successfully.</Text>
+
+                    <View style={styles.idCard}>
+                        <Text style={styles.idLabel}>Enrollment ID</Text>
+                        <Text style={styles.idValue}>{applicationId}</Text>
+                    </View>
+
+                    <View style={styles.successActions}>
+                        <TouchableOpacity style={styles.actionBtn}>
+                            <View style={[styles.actionIcon, { backgroundColor: '#E3F2FD' }]}>
+                                <Ionicons name="download-outline" size={24} color="#0D47A1" />
+                            </View>
+                            <Text style={styles.actionText}>Download{"\n"}Receipt</Text>
+                        </TouchableOpacity>
+
+                        <TouchableOpacity style={styles.actionBtn}>
+                            <View style={[styles.actionIcon, { backgroundColor: '#F1F8E9' }]}>
+                                <Ionicons name="time-outline" size={24} color="#2E7D32" />
+                            </View>
+                            <Text style={styles.actionText}>Track{"\n"}Status</Text>
+                        </TouchableOpacity>
+                    </View>
+
+                    <TouchableOpacity style={styles.mainBtn} onPress={() => router.back()}>
+                        <LinearGradient colors={['#0D47A1', '#1565C0']} style={styles.btnGrad}>
+                            <Text style={styles.mainBtnText}>Return to Services</Text>
+                            <Ionicons name="arrow-forward" size={18} color="#FFF" />
+                        </LinearGradient>
+                    </TouchableOpacity>
+                </SafeAreaView>
+            </View>
+        );
+    }
 
     return (
         <View style={styles.container}>
@@ -251,118 +293,79 @@ export default function NewAadhaarScreen() {
                     <TouchableOpacity style={styles.backButton} onPress={handleBack}>
                         <Ionicons name="arrow-back" size={24} color="#1A1A1A" />
                     </TouchableOpacity>
-                    <Text style={styles.headerTitle}>New Aadhaar Enrollment</Text>
+                    <View style={styles.headerCenter}>
+                        <Text style={styles.headerTitle}>New Aadhaar Enrollment</Text>
+                        <Text style={styles.headerSubtitle}>Apply for fresh identification</Text>
+                    </View>
                     <View style={styles.placeholder} />
                 </View>
 
                 {/* Step Indicator */}
-                <View style={styles.stepIndicator}>
-                    <View style={styles.stepItem}>
-                        <View
-                            style={[
-                                styles.stepCircle,
-                                currentStep >= 1 && styles.stepCircleActive,
-                            ]}
-                        >
-                            <Text
-                                style={[
-                                    styles.stepNumber,
-                                    currentStep >= 1 && styles.stepNumberActive,
-                                ]}
-                            >
-                                1
-                            </Text>
-                        </View>
-                        <Text style={styles.stepLabel}>Details</Text>
+                <View style={styles.stepIndicatorContainer}>
+                    <View style={styles.progressLine}>
+                        <View style={[styles.progressLineActive, { width: currentStep === 1 ? '0%' : currentStep === 2 ? '50%' : '100%' }]} />
                     </View>
-                    <View
-                        style={[styles.stepLine, currentStep >= 2 && styles.stepLineActive]}
-                    />
-                    <View style={styles.stepItem}>
-                        <View
-                            style={[
-                                styles.stepCircle,
-                                currentStep >= 2 && styles.stepCircleActive,
-                            ]}
-                        >
-                            <Text
-                                style={[
-                                    styles.stepNumber,
-                                    currentStep >= 2 && styles.stepNumberActive,
-                                ]}
-                            >
-                                2
-                            </Text>
-                        </View>
-                        <Text style={styles.stepLabel}>Documents</Text>
-                    </View>
-                    <View
-                        style={[styles.stepLine, currentStep >= 3 && styles.stepLineActive]}
-                    />
-                    <View style={styles.stepItem}>
-                        <View
-                            style={[
-                                styles.stepCircle,
-                                currentStep >= 3 && styles.stepCircleActive,
-                            ]}
-                        >
-                            <Text
-                                style={[
-                                    styles.stepNumber,
-                                    currentStep >= 3 && styles.stepNumberActive,
-                                ]}
-                            >
-                                3
-                            </Text>
-                        </View>
-                        <Text style={styles.stepLabel}>Review</Text>
+
+                    <View style={styles.stepsRow}>
+                        {[1, 2, 3].map((step) => (
+                            <View key={step} style={styles.stepItem}>
+                                <View style={[
+                                    styles.stepCircle,
+                                    currentStep >= step && styles.stepCircleActive,
+                                    currentStep > step && styles.stepCircleCompleted
+                                ]}>
+                                    {currentStep > step ? (
+                                        <Ionicons name="checkmark" size={16} color="#FFF" />
+                                    ) : (
+                                        <Text style={[styles.stepNumber, currentStep >= step && styles.stepNumberActive]}>{step}</Text>
+                                    )}
+                                </View>
+                                <Text style={[styles.stepLabel, currentStep >= step && styles.stepLabelActive]}>
+                                    {step === 1 ? "Details" : step === 2 ? "Documents" : "Review"}
+                                </Text>
+                            </View>
+                        ))}
                     </View>
                 </View>
 
                 <ScrollView
                     showsVerticalScrollIndicator={false}
                     contentContainerStyle={styles.scrollContent}
+                    keyboardShouldPersistTaps="handled"
                 >
                     {/* STEP 1: Personal Details */}
                     {currentStep === 1 && (
-                        <View style={styles.stepContent}>
-                            <Text style={styles.stepTitle}>Personal Details</Text>
-                            <Text style={styles.stepSubtitle}>
-                                Fill in mandatory information for enrollment
-                            </Text>
-
-                            <View style={styles.formSection}>
-                                <Text style={styles.formLabel}>
-                                    Full Name (as per documents) *
-                                </Text>
-                                <View style={styles.formInput}>
-                                    <TextInput
-                                        style={styles.input}
-                                        placeholder="Enter full name"
-                                        value={formData.fullName}
-                                        onChangeText={(text) =>
-                                            setFormData({ ...formData, fullName: text })
-                                        }
-                                    />
+                        <View style={styles.stepWrapper}>
+                            <View style={styles.cardHeader}>
+                                <View style={styles.cardHeaderIcon}>
+                                    <Ionicons name="person" size={20} color="#0D47A1" />
+                                </View>
+                                <View>
+                                    <Text style={styles.cardHeaderTitle}>Personal Details</Text>
+                                    <Text style={styles.cardHeaderSubtitle}>Please fill mandatory information</Text>
                                 </View>
                             </View>
 
-                            <View style={styles.formSection}>
+                            <View style={styles.formCard}>
+                                <Text style={styles.inputLabel}>Full Name (as per documents) *</Text>
+                                <View style={styles.inputContainer}>
+                                    <Ionicons name="person-outline" size={18} color="#94A3B8" />
+                                    <TextInput
+                                        style={styles.input}
+                                        placeholder="Ex: John Doe"
+                                        value={formData.fullName}
+                                        onChangeText={(text) => setFormData({ ...formData, fullName: text })}
+                                    />
+                                </View>
+
                                 <View style={styles.labelRow}>
-                                    <Text style={styles.formLabel}>
-                                        {useYearOnly ? "Year of Birth *" : "Date of Birth *"}
-                                    </Text>
-                                    <TouchableOpacity
-                                        onPress={() => setUseYearOnly(!useYearOnly)}
-                                    >
-                                        <Text style={styles.switchText}>
-                                            {useYearOnly
-                                                ? "I know exact DOB"
-                                                : "Don't know exact DOB?"}
-                                        </Text>
+                                    <Text style={styles.inputLabel}>{useYearOnly ? "Year of Birth *" : "Date of Birth *"}</Text>
+                                    <TouchableOpacity onPress={() => setUseYearOnly(!useYearOnly)}>
+                                        <Text style={styles.helperLink}>{useYearOnly ? "Use exact DOB" : "Use year only"}</Text>
                                     </TouchableOpacity>
                                 </View>
-                                <View style={styles.formInput}>
+                                <View style={styles.inputContainer}>
+                                    <Ionicons name="calendar-outline" size={18} color="#94A3B8" />
                                     {useYearOnly ? (
                                         <TextInput
                                             style={styles.input}
@@ -370,9 +373,7 @@ export default function NewAadhaarScreen() {
                                             keyboardType="number-pad"
                                             maxLength={4}
                                             value={formData.yob}
-                                            onChangeText={(text) =>
-                                                setFormData({ ...formData, yob: text })
-                                            }
+                                            onChangeText={(text) => setFormData({ ...formData, yob: text })}
                                         />
                                     ) : (
                                         <TextInput
@@ -381,226 +382,173 @@ export default function NewAadhaarScreen() {
                                             keyboardType="number-pad"
                                             maxLength={10}
                                             value={formData.dob}
-                                            onChangeText={(text) => {
-                                                const formatted = formatDOB(text);
-                                                setFormData({ ...formData, dob: formatted });
-                                            }}
+                                            onChangeText={(text) => setFormData({ ...formData, dob: formatDOB(text) })}
                                         />
                                     )}
                                 </View>
-                            </View>
 
-                            <View style={styles.formSection}>
-                                <Text style={styles.formLabel}>Gender *</Text>
-                                <View style={styles.genderButtons}>
+                                <Text style={styles.inputLabel}>Gender *</Text>
+                                <View style={styles.genderContainer}>
                                     {["Male", "Female", "Other"].map((g) => (
                                         <TouchableOpacity
                                             key={g}
-                                            style={[
-                                                styles.genderButton,
-                                                formData.gender === g && styles.genderButtonActive,
-                                            ]}
+                                            style={[styles.genderBox, formData.gender === g && styles.genderBoxActive]}
                                             onPress={() => setFormData({ ...formData, gender: g })}
                                         >
-                                            <Text
-                                                style={[
-                                                    styles.genderButtonText,
-                                                    formData.gender === g &&
-                                                    styles.genderButtonTextActive,
-                                                ]}
-                                            >
-                                                {g}
-                                            </Text>
+                                            <MaterialCommunityIcons
+                                                name={g === 'Male' ? 'gender-male' : g === 'Female' ? 'gender-female' : 'gender-transgender'}
+                                                size={20}
+                                                color={formData.gender === g ? '#0D47A1' : '#64748B'}
+                                            />
+                                            <Text style={[styles.genderText, formData.gender === g && styles.genderTextActive]}>{g}</Text>
                                         </TouchableOpacity>
                                     ))}
                                 </View>
                             </View>
 
-                            {/* Address Section */}
-                            <Text style={styles.subSectionTitle}>Complete Address</Text>
+                            <View style={[styles.cardHeader, { marginTop: 20 }]}>
+                                <View style={[styles.cardHeaderIcon, { backgroundColor: '#E0F2F1' }]}>
+                                    <Ionicons name="location" size={20} color="#00796B" />
+                                </View>
+                                <View>
+                                    <Text style={styles.cardHeaderTitle}>Address Details</Text>
+                                    <Text style={styles.cardHeaderSubtitle}>Where do you stay?</Text>
+                                </View>
+                            </View>
 
-                            <View style={styles.formSection}>
-                                <Text style={styles.formLabel}>House No / Street</Text>
-                                <View style={styles.formInput}>
+                            <View style={styles.formCard}>
+                                <Text style={styles.inputLabel}>House No / Building *</Text>
+                                <View style={styles.inputContainer}>
+                                    <Ionicons name="home-outline" size={18} color="#94A3B8" />
                                     <TextInput
                                         style={styles.input}
-                                        placeholder="Flat, House No., Building, Company"
+                                        placeholder="Flat/House No., Company"
                                         value={formData.houseNo}
-                                        onChangeText={(text) =>
-                                            setFormData({ ...formData, houseNo: text })
-                                        }
+                                        onChangeText={(text) => setFormData({ ...formData, houseNo: text })}
                                     />
                                 </View>
-                            </View>
 
-                            <View style={styles.formSection}>
-                                <Text style={styles.formLabel}>Area / Village / Locality</Text>
-                                <View style={styles.formInput}>
+                                <Text style={styles.inputLabel}>Area / Locality</Text>
+                                <View style={styles.inputContainer}>
+                                    <Ionicons name="map-outline" size={18} color="#94A3B8" />
                                     <TextInput
                                         style={styles.input}
-                                        placeholder="Area, Colony, Street, Sector, Village"
+                                        placeholder="Area, Street, Sector"
                                         value={formData.area}
-                                        onChangeText={(text) =>
-                                            setFormData({ ...formData, area: text })
-                                        }
+                                        onChangeText={(text) => setFormData({ ...formData, area: text })}
                                     />
                                 </View>
-                            </View>
 
-                            <View style={styles.formRow}>
-                                <View style={[styles.formSection, { flex: 1 }]}>
-                                    <Text style={styles.formLabel}>City / Taluka *</Text>
-                                    <View style={styles.formInput}>
-                                        <TextInput
-                                            style={styles.input}
-                                            placeholder="City/Taluka"
-                                            value={formData.city}
-                                            onChangeText={(text) =>
-                                                setFormData({ ...formData, city: text })
-                                            }
-                                        />
+                                <View style={styles.inputRow}>
+                                    <View style={{ flex: 1, marginRight: 10 }}>
+                                        <Text style={styles.inputLabel}>City / Taluka *</Text>
+                                        <View style={styles.inputContainer}>
+                                            <TextInput
+                                                style={styles.input}
+                                                placeholder="City"
+                                                value={formData.city}
+                                                onChangeText={(text) => setFormData({ ...formData, city: text })}
+                                            />
+                                        </View>
+                                    </View>
+                                    <View style={{ flex: 1 }}>
+                                        <Text style={styles.inputLabel}>District *</Text>
+                                        <View style={styles.inputContainer}>
+                                            <TextInput
+                                                style={styles.input}
+                                                placeholder="District"
+                                                value={formData.district}
+                                                onChangeText={(text) => setFormData({ ...formData, district: text })}
+                                            />
+                                        </View>
                                     </View>
                                 </View>
 
-                                <View style={[styles.formSection, { flex: 1 }]}>
-                                    <Text style={styles.formLabel}>District</Text>
-                                    <View style={styles.formInput}>
-                                        <TextInput
-                                            style={styles.input}
-                                            placeholder="District"
-                                            value={formData.district}
-                                            onChangeText={(text) =>
-                                                setFormData({ ...formData, district: text })
-                                            }
-                                        />
+                                <View style={styles.inputRow}>
+                                    <View style={{ flex: 1.5, marginRight: 10 }}>
+                                        <Text style={styles.inputLabel}>State *</Text>
+                                        <View style={styles.inputContainer}>
+                                            <TextInput
+                                                style={styles.input}
+                                                placeholder="State"
+                                                value={formData.state}
+                                                onChangeText={(text) => setFormData({ ...formData, state: text })}
+                                            />
+                                        </View>
                                     </View>
-                                </View>
-                            </View>
-
-                            <View style={styles.formRow}>
-                                <View style={[styles.formSection, { flex: 1 }]}>
-                                    <Text style={styles.formLabel}>State *</Text>
-                                    <View style={styles.formInput}>
-                                        <TextInput
-                                            style={styles.input}
-                                            placeholder="State"
-                                            value={formData.state}
-                                            onChangeText={(text) =>
-                                                setFormData({ ...formData, state: text })
-                                            }
-                                        />
+                                    <View style={{ flex: 1 }}>
+                                        <Text style={styles.inputLabel}>Pincode *</Text>
+                                        <View style={styles.inputContainer}>
+                                            <TextInput
+                                                style={styles.input}
+                                                placeholder="6-digit"
+                                                keyboardType="number-pad"
+                                                maxLength={6}
+                                                value={formData.pincode}
+                                                onChangeText={(text) => setFormData({ ...formData, pincode: text })}
+                                            />
+                                        </View>
                                     </View>
                                 </View>
 
-                                <View style={[styles.formSection, { flex: 1 }]}>
-                                    <Text style={styles.formLabel}>Pincode *</Text>
-                                    <View style={styles.formInput}>
-                                        <TextInput
-                                            style={styles.input}
-                                            placeholder="6-digit"
-                                            keyboardType="number-pad"
-                                            maxLength={6}
-                                            value={formData.pincode}
-                                            onChangeText={(text) =>
-                                                setFormData({ ...formData, pincode: text })
-                                            }
-                                        />
-                                    </View>
-                                </View>
-                            </View>
-
-                            <View style={styles.formSection}>
-                                <Text style={styles.formLabel}>
-                                    Mobile Number (for OTP & updates) *
-                                </Text>
-                                <View style={styles.formInput}>
+                                <Text style={styles.inputLabel}>Mobile Number *</Text>
+                                <View style={styles.inputContainer}>
+                                    <Ionicons name="phone-portrait-outline" size={18} color="#94A3B8" />
+                                    <Text style={styles.countryCode}>+91</Text>
                                     <TextInput
                                         style={styles.input}
                                         placeholder="10-digit mobile"
                                         keyboardType="phone-pad"
                                         maxLength={10}
                                         value={formData.mobile}
-                                        onChangeText={(text) =>
-                                            setFormData({ ...formData, mobile: text })
-                                        }
+                                        onChangeText={(text) => setFormData({ ...formData, mobile: text })}
                                     />
                                 </View>
                             </View>
 
-                            {/* Minor Section */}
                             {isMinor && (
                                 <View style={styles.minorSection}>
-                                    <View style={styles.minorHeader}>
-                                        <MaterialCommunityIcons
-                                            name="baby-face-outline"
-                                            size={24}
-                                            color="#E53935"
-                                        />
-                                        <Text style={styles.minorTitle}>
-                                            Minor Details (Below 18 Years)
-                                        </Text>
-                                    </View>
+                                    <LinearGradient colors={['#FFF5F5', '#FFF']} style={styles.minorCard}>
+                                        <View style={styles.minorHeader}>
+                                            <MaterialCommunityIcons name="baby-face-outline" size={24} color="#E53935" />
+                                            <Text style={styles.minorTitle}>Minor Details (Below 18)</Text>
+                                        </View>
 
-                                    <View style={styles.formSection}>
-                                        <Text style={styles.formLabel}>Parent/Guardian Name *</Text>
-                                        <View style={styles.formInput}>
+                                        <Text style={styles.inputLabel}>Parent/Guardian Name *</Text>
+                                        <View style={styles.inputContainer}>
                                             <TextInput
                                                 style={styles.input}
-                                                placeholder="Enter guardian's full name"
+                                                placeholder="Guardian's full name"
                                                 value={formData.parentName}
-                                                onChangeText={(text) =>
-                                                    setFormData({ ...formData, parentName: text })
-                                                }
+                                                onChangeText={(text) => setFormData({ ...formData, parentName: text })}
                                             />
                                         </View>
-                                    </View>
 
-                                    <View style={styles.formSection}>
-                                        <Text style={styles.formLabel}>
-                                            Parent Aadhaar Number *
-                                        </Text>
-                                        <View style={styles.formInput}>
+                                        <Text style={styles.inputLabel}>Parent Aadhaar Number *</Text>
+                                        <View style={styles.inputContainer}>
                                             <TextInput
                                                 style={styles.input}
                                                 placeholder="12-digit Aadhaar"
                                                 keyboardType="number-pad"
                                                 maxLength={12}
                                                 value={formData.parentAadhaar}
-                                                onChangeText={(text) =>
-                                                    setFormData({ ...formData, parentAadhaar: text })
-                                                }
+                                                onChangeText={(text) => setFormData({ ...formData, parentAadhaar: text })}
                                             />
                                         </View>
-                                    </View>
 
-                                    <View style={styles.formSection}>
-                                        <Text style={styles.formLabel}>Relationship *</Text>
-                                        <View style={styles.genderButtons}>
+                                        <Text style={styles.inputLabel}>Relationship *</Text>
+                                        <View style={styles.genderContainer}>
                                             {["Father", "Mother", "Guardian"].map((r) => (
                                                 <TouchableOpacity
                                                     key={r}
-                                                    style={[
-                                                        styles.genderButton,
-                                                        formData.relationship === r &&
-                                                        styles.genderButtonActive,
-                                                    ]}
-                                                    onPress={() =>
-                                                        setFormData({ ...formData, relationship: r })
-                                                    }
+                                                    style={[styles.genderBox, formData.relationship === r && styles.genderBoxActive]}
+                                                    onPress={() => setFormData({ ...formData, relationship: r })}
                                                 >
-                                                    <Text
-                                                        style={[
-                                                            styles.genderButtonText,
-                                                            formData.relationship === r &&
-                                                            styles.genderButtonTextActive,
-                                                        ]}
-                                                    >
-                                                        {r}
-                                                    </Text>
+                                                    <Text style={[styles.genderText, formData.relationship === r && styles.genderTextActive]}>{r}</Text>
                                                 </TouchableOpacity>
                                             ))}
                                         </View>
-                                    </View>
+                                    </LinearGradient>
                                 </View>
                             )}
                         </View>
@@ -608,342 +556,193 @@ export default function NewAadhaarScreen() {
 
                     {/* STEP 2: Documents */}
                     {currentStep === 2 && (
-                        <View style={styles.stepContent}>
-                            <Text style={styles.stepTitle}>Mandatory Documents</Text>
-                            <Text style={styles.stepSubtitle}>
-                                Upload proofs to support your enrollment
-                            </Text>
-
-                            {/* Birth Certificate */}
-                            <View style={styles.documentCard}>
-                                <View style={styles.documentHeader}>
-                                    <MaterialCommunityIcons
-                                        name="file-document"
-                                        size={24}
-                                        color="#2196F3"
-                                    />
-                                    <View style={styles.documentInfo}>
-                                        <Text style={styles.documentTitle}>
-                                            Birth Certificate *
-                                        </Text>
-                                        <Text style={styles.documentSubtitle}>जन्म प्रमाणपत्र</Text>
-                                    </View>
+                        <View style={styles.stepWrapper}>
+                            <View style={styles.cardHeader}>
+                                <View style={[styles.cardHeaderIcon, { backgroundColor: '#E3F2FD' }]}>
+                                    <Ionicons name="document-text" size={20} color="#1565C0" />
                                 </View>
-                                {documents.birthCertificate ? (
-                                    <View style={styles.uploadedFile}>
-                                        <Ionicons
-                                            name="checkmark-circle"
-                                            size={20}
-                                            color="#4CAF50"
-                                        />
-                                        <Text style={styles.uploadedFileName}>
-                                            {documents.birthCertificate?.name || "File uploaded"}
-                                        </Text>
-                                        <TouchableOpacity
-                                            onPress={() =>
-                                                setDocuments({ ...documents, birthCertificate: null })
-                                            }
-                                        >
-                                            <Ionicons name="close-circle" size={20} color="#E53935" />
-                                        </TouchableOpacity>
-                                    </View>
-                                ) : (
-                                    <TouchableOpacity
-                                        style={styles.uploadButton}
-                                        onPress={() => handleDocumentUpload("birthCertificate")}
-                                    >
-                                        <Ionicons name="cloud-upload" size={20} color="#2196F3" />
-                                        <Text style={styles.uploadButtonText}>Upload Document</Text>
-                                    </TouchableOpacity>
-                                )}
+                                <View>
+                                    <Text style={styles.cardHeaderTitle}>Upload Documents</Text>
+                                    <Text style={styles.cardHeaderSubtitle}>Clear photos or PDF (Max 5MB)</Text>
+                                </View>
                             </View>
 
-                            {/* School Certificate */}
-                            <View style={styles.documentCard}>
-                                <View style={styles.documentHeader}>
-                                    <MaterialCommunityIcons
-                                        name="school"
+                            <View style={styles.docList}>
+                                {/* Birth Certificate */}
+                                <TouchableOpacity
+                                    style={[styles.docUploadCard, documents.birthCertificate && styles.docUploadCardActive]}
+                                    onPress={() => handleDocumentUpload("birthCertificate")}
+                                >
+                                    <View style={styles.docIconCircle}>
+                                        <MaterialCommunityIcons name="calendar-account" size={24} color={documents.birthCertificate ? "#FFF" : "#2196F3"} />
+                                    </View>
+                                    <View style={styles.docTextContent}>
+                                        <Text style={styles.docTitle}>Birth Certificate *</Text>
+                                        <Text style={styles.docHint}>{documents.birthCertificate ? documents.birthCertificate.name : "Tap to upload birth proof"}</Text>
+                                    </View>
+                                    <Ionicons
+                                        name={documents.birthCertificate ? "checkmark-circle" : "cloud-upload"}
                                         size={24}
-                                        color="#FF9800"
+                                        color={documents.birthCertificate ? "#2E7D32" : "#94A3B8"}
                                     />
-                                    <View style={styles.documentInfo}>
-                                        <Text style={styles.documentTitle}>
-                                            School Leaving Certificate *
-                                        </Text>
-                                        <Text style={styles.documentSubtitle}>
-                                            शाळा सोडल्याचा दाखला
-                                        </Text>
-                                    </View>
-                                </View>
-                                {documents.schoolCertificate ? (
-                                    <View style={styles.uploadedFile}>
-                                        <Ionicons
-                                            name="checkmark-circle"
-                                            size={20}
-                                            color="#4CAF50"
-                                        />
-                                        <Text style={styles.uploadedFileName}>
-                                            {documents.schoolCertificate?.name || "File uploaded"}
-                                        </Text>
-                                        <TouchableOpacity
-                                            onPress={() =>
-                                                setDocuments({ ...documents, schoolCertificate: null })
-                                            }
-                                        >
-                                            <Ionicons name="close-circle" size={20} color="#E53935" />
-                                        </TouchableOpacity>
-                                    </View>
-                                ) : (
-                                    <TouchableOpacity
-                                        style={styles.uploadButton}
-                                        onPress={() => handleDocumentUpload("schoolCertificate")}
-                                    >
-                                        <Ionicons name="cloud-upload" size={20} color="#FF9800" />
-                                        <Text style={styles.uploadButtonText}>Upload Document</Text>
-                                    </TouchableOpacity>
-                                )}
-                            </View>
+                                </TouchableOpacity>
 
-                            {/* Address Proof */}
-                            <View style={styles.documentCard}>
-                                <View style={styles.documentHeader}>
-                                    <MaterialCommunityIcons
-                                        name="home-map-marker"
+                                {/* School Certificate */}
+                                <TouchableOpacity
+                                    style={[styles.docUploadCard, documents.schoolCertificate && styles.docUploadCardActive]}
+                                    onPress={() => handleDocumentUpload("schoolCertificate")}
+                                >
+                                    <View style={[styles.docIconCircle, { backgroundColor: '#FFF8E1' }]}>
+                                        <MaterialCommunityIcons name="school" size={24} color={documents.schoolCertificate ? "#FFF" : "#FFB300"} />
+                                    </View>
+                                    <View style={styles.docTextContent}>
+                                        <Text style={styles.docTitle}>School Certificate *</Text>
+                                        <Text style={styles.docHint}>{documents.schoolCertificate ? documents.schoolCertificate.name : "Tap to upload LC/Certificate"}</Text>
+                                    </View>
+                                    <Ionicons
+                                        name={documents.schoolCertificate ? "checkmark-circle" : "cloud-upload"}
                                         size={24}
-                                        color="#4CAF50"
+                                        color={documents.schoolCertificate ? "#2E7D32" : "#94A3B8"}
                                     />
-                                    <View style={styles.documentInfo}>
-                                        <Text style={styles.documentTitle}>Address Proof *</Text>
-                                        <Text style={styles.documentSubtitle}>
-                                            Light Bill / Ration Card / Bank Passbook
-                                        </Text>
-                                    </View>
-                                </View>
-                                {documents.addressProof ? (
-                                    <View style={styles.uploadedFile}>
-                                        <Ionicons
-                                            name="checkmark-circle"
-                                            size={20}
-                                            color="#4CAF50"
-                                        />
-                                        <Text style={styles.uploadedFileName}>
-                                            {documents.addressProof?.name || "File uploaded"}
-                                        </Text>
-                                        <TouchableOpacity
-                                            onPress={() =>
-                                                setDocuments({ ...documents, addressProof: null })
-                                            }
-                                        >
-                                            <Ionicons name="close-circle" size={20} color="#E53935" />
-                                        </TouchableOpacity>
-                                    </View>
-                                ) : (
-                                    <TouchableOpacity
-                                        style={styles.uploadButton}
-                                        onPress={() => handleDocumentUpload("addressProof")}
-                                    >
-                                        <Ionicons name="cloud-upload" size={20} color="#4CAF50" />
-                                        <Text style={styles.uploadButtonText}>Upload Document</Text>
-                                    </TouchableOpacity>
-                                )}
-                            </View>
+                                </TouchableOpacity>
 
-                            {/* Parent Aadhaar - Mandatory for Minors */}
-                            {isMinor && (
-                                <View style={styles.documentCard}>
-                                    <View style={styles.documentHeader}>
-                                        <MaterialCommunityIcons
-                                            name="account-details"
+                                {/* Address Proof */}
+                                <TouchableOpacity
+                                    style={[styles.docUploadCard, documents.addressProof && styles.docUploadCardActive]}
+                                    onPress={() => handleDocumentUpload("addressProof")}
+                                >
+                                    <View style={[styles.docIconCircle, { backgroundColor: '#E8F5E9' }]}>
+                                        <MaterialCommunityIcons name="home-map-marker" size={24} color={documents.addressProof ? "#FFF" : "#43A047"} />
+                                    </View>
+                                    <View style={styles.docTextContent}>
+                                        <Text style={styles.docTitle}>Address Proof *</Text>
+                                        <Text style={styles.docHint}>{documents.addressProof ? documents.addressProof.name : "Tap to upload Bill/Ration Card"}</Text>
+                                    </View>
+                                    <Ionicons
+                                        name={documents.addressProof ? "checkmark-circle" : "cloud-upload"}
+                                        size={24}
+                                        color={documents.addressProof ? "#2E7D32" : "#94A3B8"}
+                                    />
+                                </TouchableOpacity>
+
+                                {/* Parent Aadhaar - Mandatory for Minors */}
+                                {isMinor && (
+                                    <TouchableOpacity
+                                        style={[styles.docUploadCard, documents.parentAadhaar && styles.docUploadCardActive]}
+                                        onPress={() => handleDocumentUpload("parentAadhaar")}
+                                    >
+                                        <View style={[styles.docIconCircle, { backgroundColor: '#FFEBEE' }]}>
+                                            <MaterialCommunityIcons name="account-details" size={24} color={documents.parentAadhaar ? "#FFF" : "#E53935"} />
+                                        </View>
+                                        <View style={styles.docTextContent}>
+                                            <Text style={styles.docTitle}>Parent Aadhaar *</Text>
+                                            <Text style={styles.docHint}>{documents.parentAadhaar ? documents.parentAadhaar.name : "Tap to upload guardian's card"}</Text>
+                                        </View>
+                                        <Ionicons
+                                            name={documents.parentAadhaar ? "checkmark-circle" : "cloud-upload"}
                                             size={24}
-                                            color="#E53935"
+                                            color={documents.parentAadhaar ? "#2E7D32" : "#94A3B8"}
                                         />
-                                        <View style={styles.documentInfo}>
-                                            <Text style={styles.documentTitle}>Parent Aadhaar *</Text>
-                                            <Text style={styles.documentSubtitle}>
-                                                Mandatory for minors
-                                            </Text>
-                                        </View>
-                                    </View>
-                                    {documents.parentAadhaar ? (
-                                        <View style={styles.uploadedFile}>
-                                            <Ionicons
-                                                name="checkmark-circle"
-                                                size={20}
-                                                color="#4CAF50"
-                                            />
-                                            <Text style={styles.uploadedFileName}>
-                                                {documents.parentAadhaar?.name || "File uploaded"}
-                                            </Text>
-                                            <TouchableOpacity
-                                                onPress={() =>
-                                                    setDocuments({ ...documents, parentAadhaar: null })
-                                                }
-                                            >
-                                                <Ionicons
-                                                    name="close-circle"
-                                                    size={20}
-                                                    color="#E53935"
-                                                />
-                                            </TouchableOpacity>
-                                        </View>
-                                    ) : (
-                                        <TouchableOpacity
-                                            style={styles.uploadButton}
-                                            onPress={() => handleDocumentUpload("parentAadhaar")}
-                                        >
-                                            <Ionicons name="cloud-upload" size={20} color="#E53935" />
-                                            <Text style={styles.uploadButtonText}>
-                                                Upload Parent Aadhaar
-                                            </Text>
-                                        </TouchableOpacity>
-                                    )}
-                                </View>
-                            )}
+                                    </TouchableOpacity>
+                                )}
+                            </View>
                         </View>
                     )}
 
                     {/* STEP 3: Review */}
                     {currentStep === 3 && (
-                        <View style={styles.stepContent}>
-                            <Text style={styles.stepTitle}>Review & Submit</Text>
-                            <Text style={styles.stepSubtitle}>
-                                Please verify all details before submission
-                            </Text>
+                        <View style={styles.stepWrapper}>
+                            <View style={styles.cardHeader}>
+                                <View style={[styles.cardHeaderIcon, { backgroundColor: '#F3E5F5' }]}>
+                                    <Ionicons name="eye" size={20} color="#7B1FA2" />
+                                </View>
+                                <View>
+                                    <Text style={styles.cardHeaderTitle}>Final Review</Text>
+                                    <Text style={styles.cardHeaderSubtitle}>Confirm your details</Text>
+                                </View>
+                            </View>
 
                             <View style={styles.reviewCard}>
-                                <Text style={styles.reviewCardTitle}>Personal Details</Text>
-                                <View style={styles.reviewRow}>
-                                    <Text style={styles.reviewLabel}>Full Name:</Text>
-                                    <Text style={styles.reviewValue}>{formData.fullName}</Text>
+                                <View style={styles.reviewSection}>
+                                    <Text style={styles.reviewSectionTitle}>Personal Info</Text>
+                                    <View style={styles.reviewItem}>
+                                        <Text style={styles.reviewLabel}>Name</Text>
+                                        <Text style={styles.reviewValue}>{formData.fullName}</Text>
+                                    </View>
+                                    <View style={styles.reviewItem}>
+                                        <Text style={styles.reviewLabel}>DOB/YOB</Text>
+                                        <Text style={styles.reviewValue}>{useYearOnly ? formData.yob : formData.dob}</Text>
+                                    </View>
+                                    <View style={styles.reviewItem}>
+                                        <Text style={styles.reviewLabel}>Gender</Text>
+                                        <Text style={styles.reviewValue}>{formData.gender}</Text>
+                                    </View>
+                                    <View style={styles.reviewItem}>
+                                        <Text style={styles.reviewLabel}>Mobile</Text>
+                                        <Text style={styles.reviewValue}>+91 {formData.mobile}</Text>
+                                    </View>
                                 </View>
-                                <View style={styles.reviewRow}>
-                                    <Text style={styles.reviewLabel}>DOB / YOB:</Text>
-                                    <Text style={styles.reviewValue}>
-                                        {useYearOnly ? formData.yob : formData.dob}
+
+                                <View style={styles.divider} />
+
+                                <View style={styles.reviewSection}>
+                                    <Text style={styles.reviewSectionTitle}>Address Info</Text>
+                                    <Text style={styles.addressText}>
+                                        {formData.houseNo}, {formData.area}, {formData.city}, {formData.district}, {formData.state} - {formData.pincode}
                                     </Text>
                                 </View>
-                                <View style={styles.reviewRow}>
-                                    <Text style={styles.reviewLabel}>Gender:</Text>
-                                    <Text style={styles.reviewValue}>{formData.gender}</Text>
-                                </View>
-                                <View style={styles.reviewRow}>
-                                    <Text style={styles.reviewLabel}>Mobile:</Text>
-                                    <Text style={styles.reviewValue}>{formData.mobile}</Text>
-                                </View>
+
+                                {isMinor && (
+                                    <>
+                                        <View style={styles.divider} />
+                                        <View style={styles.reviewSection}>
+                                            <Text style={styles.reviewSectionTitle}>Guardian Info</Text>
+                                            <View style={styles.reviewItem}>
+                                                <Text style={styles.reviewLabel}>Guardian</Text>
+                                                <Text style={styles.reviewValue}>{formData.parentName} ({formData.relationship})</Text>
+                                            </View>
+                                            <View style={styles.reviewItem}>
+                                                <Text style={styles.reviewLabel}>UID</Text>
+                                                <Text style={styles.reviewValue}>{formData.parentAadhaar}</Text>
+                                            </View>
+                                        </View>
+                                    </>
+                                )}
                             </View>
 
-                            <View style={styles.reviewCard}>
-                                <Text style={styles.reviewCardTitle}>Address Details</Text>
-                                <Text style={styles.reviewAddressText}>
-                                    {formData.houseNo && `${formData.houseNo}, `}
-                                    {formData.area && `${formData.area}, `}
-                                    {formData.city},{" "}
-                                    {formData.district && `${formData.district}, `}
-                                    {formData.state} - {formData.pincode}
+                            <View style={styles.declarationBox}>
+                                <Ionicons name="information-circle" size={20} color="#0D47A1" />
+                                <Text style={styles.declarationText}>
+                                    By submitting, you confirm that all information and documents provided are authentic and belong to the applicant.
                                 </Text>
                             </View>
-
-                            {isMinor && (
-                                <View style={styles.reviewCard}>
-                                    <Text style={styles.reviewCardTitle}>Guardian Details</Text>
-                                    <View style={styles.reviewRow}>
-                                        <Text style={styles.reviewLabel}>Name:</Text>
-                                        <Text style={styles.reviewValue}>
-                                            {formData.parentName}
-                                        </Text>
-                                    </View>
-                                    <View style={styles.reviewRow}>
-                                        <Text style={styles.reviewLabel}>Aadhaar:</Text>
-                                        <Text style={styles.reviewValue}>
-                                            {formData.parentAadhaar}
-                                        </Text>
-                                    </View>
-                                    <View style={styles.reviewRow}>
-                                        <Text style={styles.reviewLabel}>Relationship:</Text>
-                                        <Text style={styles.reviewValue}>
-                                            {formData.relationship}
-                                        </Text>
-                                    </View>
-                                </View>
-                            )}
-
-                            <View style={styles.reviewCard}>
-                                <Text style={styles.reviewCardTitle}>Uploaded Documents</Text>
-                                {documents.birthCertificate && (
-                                    <View style={styles.reviewDocRow}>
-                                        <Ionicons
-                                            name="checkmark-circle"
-                                            size={20}
-                                            color="#4CAF50"
-                                        />
-                                        <Text style={styles.reviewDocText}>Birth Certificate</Text>
-                                    </View>
-                                )}
-                                {documents.schoolCertificate && (
-                                    <View style={styles.reviewDocRow}>
-                                        <Ionicons
-                                            name="checkmark-circle"
-                                            size={20}
-                                            color="#4CAF50"
-                                        />
-                                        <Text style={styles.reviewDocText}>School Certificate</Text>
-                                    </View>
-                                )}
-                                {documents.addressProof && (
-                                    <View style={styles.reviewDocRow}>
-                                        <Ionicons
-                                            name="checkmark-circle"
-                                            size={20}
-                                            color="#4CAF50"
-                                        />
-                                        <Text style={styles.reviewDocText}>Address Proof</Text>
-                                    </View>
-                                )}
-                                {isMinor && documents.parentAadhaar && (
-                                    <View style={styles.reviewDocRow}>
-                                        <Ionicons
-                                            name="checkmark-circle"
-                                            size={20}
-                                            color="#4CAF50"
-                                        />
-                                        <Text style={styles.reviewDocText}>Parent Aadhaar</Text>
-                                    </View>
-                                )}
-                            </View>
-
-                            <View style={styles.feeCard}>
-                                <Text style={styles.feeLabel}>Enrollment Fee</Text>
-                                <Text style={styles.feeValue}>₹0</Text>
-                            </View>
-                            <Text style={styles.feeNote}>
-                                * New Aadhaar enrollment is free of cost at UIDAI centers.
-                            </Text>
                         </View>
                     )}
 
-                    <View style={{ height: 100 }} />
+                    <View style={{ height: 20 }} />
                 </ScrollView>
 
-                {/* Bottom Button */}
+                {/* Bottom Bar */}
                 <View style={styles.bottomBar}>
                     <TouchableOpacity
                         style={styles.continueButton}
                         onPress={handleContinue}
+                        activeOpacity={0.8}
                     >
                         <LinearGradient
-                            colors={["#4CAF50", "#45A049"]}
+                            colors={['#0D47A1', '#1565C0']}
                             start={{ x: 0, y: 0 }}
                             end={{ x: 1, y: 0 }}
-                            style={styles.continueButtonGradient}
+                            style={styles.buttonGradient}
                         >
-                            <Text style={styles.continueButtonText}>
-                                {currentStep === 1
-                                    ? "Continue"
-                                    : currentStep === 2
-                                        ? "Proceed"
-                                        : "Submit & Pay"}
+                            <Text style={styles.buttonText}>
+                                {currentStep === 3 ? "Submit Application" : "Continue"}
                             </Text>
-                            <Ionicons name="arrow-forward" size={20} color="#FFFFFF" />
+                            <Ionicons
+                                name={currentStep === 3 ? "checkmark-done" : "arrow-forward"}
+                                size={20}
+                                color="#FFF"
+                            />
                         </LinearGradient>
                     </TouchableOpacity>
                 </View>
@@ -955,7 +754,7 @@ export default function NewAadhaarScreen() {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: "#F6F9FC",
+        backgroundColor: "#F8FAFC",
     },
     safeArea: {
         flex: 1,
@@ -968,357 +767,448 @@ const styles = StyleSheet.create({
         paddingTop: 50,
         paddingBottom: 20,
         backgroundColor: "#FFFFFF",
-        borderBottomWidth: 1,
-        borderBottomColor: "#F0F0F0",
     },
     backButton: {
-        padding: 5,
+        padding: 4,
+    },
+    headerCenter: {
+        flex: 1,
+        alignItems: 'center'
     },
     headerTitle: {
         fontSize: 18,
-        fontWeight: "bold",
-        color: "#1A1A1A",
-        textAlign: 'center',
+        fontWeight: "800",
+        color: "#1E293B",
+    },
+    headerSubtitle: {
+        fontSize: 12,
+        color: '#64748B',
+        marginTop: 2
     },
     placeholder: {
-        width: 34,
+        width: 32,
     },
 
     // Step Indicator
-    stepIndicator: {
-        flexDirection: "row",
-        alignItems: "center",
-        justifyContent: "center",
-        paddingVertical: 20,
-        paddingHorizontal: 20,
-        backgroundColor: "#FFFFFF",
-        borderBottomWidth: 1,
-        borderBottomColor: "#F0F0F0",
+    stepIndicatorContainer: {
+        backgroundColor: '#FFF',
+        paddingBottom: 20,
+        paddingHorizontal: 30,
+        position: 'relative',
+    },
+    progressLine: {
+        position: 'absolute',
+        top: 16,
+        left: 60,
+        right: 60,
+        height: 2,
+        backgroundColor: '#F1F5F9',
+        overflow: 'hidden',
+    },
+    progressLineActive: {
+        height: '100%',
+        backgroundColor: '#0D47A1',
+    },
+    stepsRow: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
     },
     stepItem: {
-        alignItems: "center",
-        gap: 6,
+        alignItems: 'center',
     },
     stepCircle: {
-        width: 36,
-        height: 36,
-        borderRadius: 18,
-        backgroundColor: "#E0E0E0",
-        alignItems: "center",
-        justifyContent: "center",
+        width: 34,
+        height: 34,
+        borderRadius: 17,
+        backgroundColor: '#FFF',
+        borderWidth: 2,
+        borderColor: '#F1F5F9',
+        alignItems: 'center',
+        justifyContent: 'center',
+        zIndex: 2,
     },
     stepCircleActive: {
-        backgroundColor: "#4CAF50",
+        borderColor: '#0D47A1',
+        backgroundColor: '#FFF',
+    },
+    stepCircleCompleted: {
+        backgroundColor: '#2E7D32',
+        borderColor: '#2E7D32',
     },
     stepNumber: {
-        fontSize: 16,
-        fontWeight: "bold",
-        color: "#999",
+        fontSize: 14,
+        fontWeight: '700',
+        color: '#CBD5E1',
     },
     stepNumberActive: {
-        color: "#FFFFFF",
+        color: '#0D47A1',
     },
     stepLabel: {
         fontSize: 11,
-        color: "#666",
+        fontWeight: '600',
+        color: '#94A3B8',
+        marginTop: 6,
     },
-    stepLine: {
-        flex: 1,
-        height: 2,
-        backgroundColor: "#E0E0E0",
-        marginHorizontal: 8,
-    },
-    stepLineActive: {
-        backgroundColor: "#4CAF50",
+    stepLabelActive: {
+        color: '#0D47A1',
     },
 
     scrollContent: {
-        paddingBottom: 20,
+        paddingTop: 20,
+        paddingBottom: 40,
+        paddingHorizontal: 20,
+    },
+    stepWrapper: {
+        animationDuration: '300ms'
+    },
+    cardHeader: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginBottom: 16,
+    },
+    cardHeaderIcon: {
+        width: 40,
+        height: 40,
+        borderRadius: 12,
+        backgroundColor: '#E3F2FD',
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginRight: 12,
+    },
+    cardHeaderTitle: {
+        fontSize: 16,
+        fontWeight: '800',
+        color: '#1E293B',
+    },
+    cardHeaderSubtitle: {
+        fontSize: 12,
+        color: '#64748B',
     },
 
-    stepContent: {
-        paddingHorizontal: 20,
-        paddingTop: 20,
+    formCard: {
+        backgroundColor: '#FFF',
+        borderRadius: 20,
+        padding: 20,
+        shadowColor: '#64748B',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.08,
+        shadowRadius: 12,
+        elevation: 4,
     },
-    stepTitle: {
-        fontSize: 20,
-        fontWeight: "bold",
-        color: "#1A1A1A",
-        marginBottom: 6,
-    },
-    stepSubtitle: {
-        fontSize: 14,
-        color: "#666",
-        marginBottom: 20,
-    },
-    subSectionTitle: {
-        fontSize: 16,
-        fontWeight: "bold",
-        color: "#1A1A1A",
-        marginTop: 10,
-        marginBottom: 15,
-        backgroundColor: "#E8F5E9",
-        padding: 10,
-        borderRadius: 8,
+    inputLabel: {
+        fontSize: 13,
+        fontWeight: '700',
+        color: '#475569',
+        marginBottom: 8,
+        marginTop: 16,
     },
     labelRow: {
-        flexDirection: "row",
-        justifyContent: "space-between",
-        alignItems: "center",
-        marginBottom: 8,
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
     },
-    switchText: {
+    helperLink: {
         fontSize: 12,
-        color: "#2196F3",
-        fontWeight: "600",
+        color: '#0D47A1',
+        fontWeight: '700',
     },
-    minorSection: {
-        marginTop: 10,
-        padding: 15,
-        backgroundColor: "#FFF9F9",
-        borderRadius: 16,
-        borderWidth: 1,
-        borderColor: "#FFEBEE",
-        marginBottom: 20,
-    },
-    minorHeader: {
-        flexDirection: "row",
-        alignItems: "center",
-        gap: 10,
-        marginBottom: 15,
-    },
-    minorTitle: {
-        fontSize: 15,
-        fontWeight: "bold",
-        color: "#E53935",
-    },
-
-    // Document Cards
-    documentCard: {
-        backgroundColor: "#FFFFFF",
-        borderRadius: 16,
-        padding: 16,
-        marginBottom: 16,
-        shadowColor: "#000",
-        shadowOffset: { width: 0, height: 1 },
-        shadowOpacity: 0.06,
-        shadowRadius: 8,
-        elevation: 2,
-    },
-    documentHeader: {
-        flexDirection: "row",
-        alignItems: "center",
-        gap: 12,
-        marginBottom: 12,
-    },
-    documentInfo: {
-        flex: 1,
-    },
-    documentTitle: {
-        fontSize: 15,
-        fontWeight: "600",
-        color: "#1A1A1A",
-        marginBottom: 2,
-    },
-    documentSubtitle: {
-        fontSize: 12,
-        color: "#666",
-    },
-    uploadedFile: {
-        flexDirection: "row",
-        alignItems: "center",
-        gap: 8,
-        backgroundColor: "#E8F5E9",
-        padding: 10,
-        borderRadius: 8,
-        marginBottom: 10,
-    },
-    uploadedFileName: {
-        flex: 1,
-        fontSize: 13,
-        color: "#1A1A1A",
-    },
-    uploadedFileSize: {
-        fontSize: 12,
-        color: "#666",
-    },
-    uploadButton: {
-        flexDirection: "row",
-        alignItems: "center",
-        justifyContent: "center",
-        gap: 8,
-        backgroundColor: "#F1F8FE",
-        paddingVertical: 12,
+    inputContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: '#F8FAFC',
         borderRadius: 12,
         borderWidth: 1,
-        borderStyle: "dashed",
-        borderColor: "#BBDEFB",
-    },
-    uploadButtonText: {
-        fontSize: 14,
-        fontWeight: "600",
-        color: "#2196F3",
-    },
-
-    // Form
-    formSection: {
-        marginBottom: 20,
-    },
-    formLabel: {
-        fontSize: 14,
-        fontWeight: "600",
-        color: "#1A1A1A",
-        marginBottom: 8,
-    },
-    formInput: {
-        backgroundColor: "#FFFFFF",
-        borderRadius: 12,
-        paddingHorizontal: 16,
-        paddingVertical: 14,
-        shadowColor: "#000",
-        shadowOffset: { width: 0, height: 1 },
-        shadowOpacity: 0.05,
-        shadowRadius: 3,
-        elevation: 1,
+        borderColor: '#E2E8F0',
+        paddingHorizontal: 12,
+        height: 48,
     },
     input: {
-        fontSize: 15,
-        color: "#1A1A1A",
-    },
-    textArea: {
-        minHeight: 80,
-        textAlignVertical: "top",
-    },
-    formRow: {
-        flexDirection: "row",
-        gap: 12,
-    },
-    genderButtons: {
-        flexDirection: "row",
-        gap: 10,
-    },
-    genderButton: {
         flex: 1,
-        paddingVertical: 12,
+        fontSize: 15,
+        color: '#1E293B',
+        marginLeft: 10,
+    },
+    inputRow: {
+        flexDirection: 'row',
+        marginTop: 0,
+    },
+    countryCode: {
+        fontSize: 15,
+        fontWeight: '700',
+        color: '#475569',
+        marginLeft: 8,
+    },
+    genderContainer: {
+        flexDirection: 'row',
+        gap: 10,
+        marginTop: 4,
+    },
+    genderBox: {
+        flex: 1,
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: 6,
+        backgroundColor: '#F8FAFC',
         borderRadius: 12,
-        borderWidth: 2,
-        borderColor: "#E0E0E0",
-        alignItems: "center",
-        backgroundColor: "#FFFFFF",
+        borderWidth: 1,
+        borderColor: '#E2E8F0',
+        paddingVertical: 12,
     },
-    genderButtonActive: {
-        borderColor: "#4CAF50",
-        backgroundColor: "#E8F5E9",
+    genderBoxActive: {
+        borderColor: '#0D47A1',
+        backgroundColor: '#E3F2FD',
     },
-    genderButtonText: {
+    genderText: {
         fontSize: 14,
-        fontWeight: "600",
-        color: "#666",
+        fontWeight: '600',
+        color: '#64748B',
     },
-    genderButtonTextActive: {
-        color: "#4CAF50",
+    genderTextActive: {
+        color: '#0D47A1',
     },
 
-    // Review
-    reviewCard: {
-        backgroundColor: "#FFFFFF",
-        borderRadius: 16,
+    minorSection: {
+        marginTop: 20,
+    },
+    minorCard: {
+        borderRadius: 20,
+        padding: 20,
+        borderWidth: 1,
+        borderColor: '#FEE2E2',
+    },
+    minorHeader: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 10,
+        marginBottom: 10,
+    },
+    minorTitle: {
+        fontSize: 16,
+        fontWeight: '800',
+        color: '#E53935',
+    },
+
+    // Step 2: Documents
+    docList: {
+        gap: 12,
+    },
+    docUploadCard: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: '#FFF',
+        borderRadius: 18,
         padding: 16,
-        marginBottom: 16,
-        shadowColor: "#000",
-        shadowOffset: { width: 0, height: 1 },
-        shadowOpacity: 0.06,
+        shadowColor: '#64748B',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.05,
         shadowRadius: 8,
         elevation: 2,
+        borderWidth: 1,
+        borderColor: 'transparent',
     },
-    reviewCardTitle: {
-        fontSize: 16,
-        fontWeight: "bold",
-        color: "#1A1A1A",
+    docUploadCardActive: {
+        borderColor: '#C8E6C9',
+        backgroundColor: '#F1FBF4',
+    },
+    docIconCircle: {
+        width: 48,
+        height: 48,
+        borderRadius: 14,
+        backgroundColor: '#E3F2FD',
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginRight: 16,
+    },
+    docTextContent: {
+        flex: 1,
+    },
+    docTitle: {
+        fontSize: 15,
+        fontWeight: '700',
+        color: '#1E293B',
+    },
+    docHint: {
+        fontSize: 12,
+        color: '#94A3B8',
+        marginTop: 2,
+    },
+
+    // Step 3: Review
+    reviewCard: {
+        backgroundColor: '#FFF',
+        borderRadius: 20,
+        padding: 20,
+        shadowColor: '#64748B',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.08,
+        shadowRadius: 12,
+        elevation: 4,
+    },
+    reviewSection: {
+        paddingVertical: 10,
+    },
+    reviewSectionTitle: {
+        fontSize: 14,
+        fontWeight: '800',
+        color: '#0D47A1',
         marginBottom: 12,
+        textTransform: 'uppercase',
+        letterSpacing: 0.5,
     },
-    reviewRow: {
-        flexDirection: "row",
-        justifyContent: "space-between",
-        marginBottom: 10,
+    reviewItem: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        marginBottom: 8,
     },
     reviewLabel: {
         fontSize: 14,
-        color: "#666",
+        color: '#64748B',
     },
     reviewValue: {
         fontSize: 14,
-        fontWeight: "600",
-        color: "#1A1A1A",
+        fontWeight: '700',
+        color: '#1E293B',
     },
-    reviewAddressText: {
+    addressText: {
         fontSize: 14,
-        color: "#1A1A1A",
+        color: '#1E293B',
         lineHeight: 20,
+        fontWeight: '600'
     },
-    reviewDocRow: {
-        flexDirection: "row",
-        alignItems: "center",
-        gap: 8,
-        marginBottom: 8,
+    divider: {
+        height: 1,
+        backgroundColor: '#F1F5F9',
+        marginVertical: 10,
     },
-    reviewDocText: {
-        fontSize: 14,
-        color: "#1A1A1A",
-    },
-    feeCard: {
-        backgroundColor: "#F1F8FE",
+    declarationBox: {
+        flexDirection: 'row',
+        backgroundColor: '#E3F2FD',
         borderRadius: 16,
         padding: 16,
-        flexDirection: "row",
-        justifyContent: "space-between",
-        alignItems: "center",
+        marginTop: 20,
+        gap: 12,
     },
-    feeLabel: {
-        fontSize: 16,
-        fontWeight: "600",
-        color: "#1A1A1A",
-    },
-    feeValue: {
-        fontSize: 18,
-        fontWeight: "bold",
-        color: "#4CAF50",
-    },
-    feeNote: {
-        fontSize: 11,
-        color: "#999",
-        marginTop: 10,
-        fontStyle: "italic",
-        textAlign: "center",
+    declarationText: {
+        flex: 1,
+        fontSize: 12,
+        color: '#0D47A1',
+        lineHeight: 18,
+        fontWeight: '600'
     },
 
     // Bottom Bar
     bottomBar: {
-        paddingHorizontal: 20,
-        paddingVertical: 15,
-        backgroundColor: "#FFFFFF",
+        backgroundColor: '#FFF',
+        padding: 20,
         borderTopWidth: 1,
-        borderTopColor: "#F0F0F0",
-        shadowColor: "#000",
-        shadowOffset: { width: 0, height: -2 },
-        shadowOpacity: 0.08,
-        shadowRadius: 8,
-        elevation: 8,
+        borderTopColor: '#F1F5F9',
     },
     continueButton: {
-        borderRadius: 24,
-        overflow: "hidden",
+        borderRadius: 16,
+        overflow: 'hidden',
     },
-    continueButtonGradient: {
-        flexDirection: "row",
-        alignItems: "center",
-        justifyContent: "center",
+    buttonGradient: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
         gap: 10,
         paddingVertical: 16,
     },
-    continueButtonText: {
+    buttonText: {
         fontSize: 16,
-        fontWeight: "bold",
-        color: "#FFFFFF",
+        fontWeight: '800',
+        color: '#FFF',
+    },
+
+    // Success Screen
+    successContainer: {
+        flex: 1,
+        alignItems: "center",
+        justifyContent: "center",
+        padding: 30,
+        backgroundColor: "#FFF",
+    },
+    successIconCircle: {
+        width: 120,
+        height: 120,
+        borderRadius: 60,
+        backgroundColor: "#F0FDF4",
+        alignItems: "center",
+        justifyContent: "center",
+        marginBottom: 24,
+    },
+    successTitle: {
+        fontSize: 24,
+        fontWeight: "800",
+        color: "#1E293B",
+    },
+    successSubtitle: {
+        color: "#64748B",
+        textAlign: "center",
+        marginTop: 8,
+        lineHeight: 20,
+    },
+    idCard: {
+        backgroundColor: "#F8FAFC",
+        padding: 24,
+        borderRadius: 20,
+        width: "100%",
+        alignItems: "center",
+        marginVertical: 32,
+        borderWidth: 1,
+        borderColor: '#E2E8F0',
+    },
+    idLabel: {
+        fontSize: 12,
+        color: "#94A3B8",
+        fontWeight: '700',
+        textTransform: "uppercase",
+        letterSpacing: 1,
+    },
+    idValue: {
+        fontSize: 28,
+        fontWeight: "800",
+        color: "#0D47A1",
+        marginTop: 4,
+    },
+    successActions: {
+        flexDirection: 'row',
+        gap: 20,
+        marginBottom: 40,
+    },
+    actionBtn: {
+        alignItems: 'center',
+        gap: 8,
+    },
+    actionIcon: {
+        width: 56,
+        height: 56,
+        borderRadius: 28,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    actionText: {
+        fontSize: 12,
+        color: '#475569',
+        fontWeight: '600',
+        textAlign: 'center',
+    },
+    mainBtn: {
+        width: '100%',
+        borderRadius: 16,
+        overflow: 'hidden',
+    },
+    btnGrad: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        paddingVertical: 16,
+        gap: 10,
+    },
+    mainBtnText: {
+        color: "#FFF",
+        fontSize: 16,
+        fontWeight: "800",
     },
 });

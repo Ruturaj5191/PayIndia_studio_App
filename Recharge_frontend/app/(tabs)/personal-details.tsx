@@ -18,6 +18,7 @@ import {
   View,
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { API_ENDPOINTS } from "../../constants/api";
 
 export default function PersonalDetailsScreen() {
   const router = useRouter();
@@ -45,7 +46,7 @@ export default function PersonalDetailsScreen() {
     setIsFetching(true);
     try {
       const token = await AsyncStorage.getItem("userToken");
-      const response = await fetch("http://192.168.1.26:5000/api/user/profile", {
+      const response = await fetch(API_ENDPOINTS.USER_PROFILE, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -324,7 +325,7 @@ export default function PersonalDetailsScreen() {
           setIsLoading(true);
           try {
             const token = await AsyncStorage.getItem("userToken");
-            const response = await fetch("http://192.168.1.26:5000/api/user/profile", {
+            const response = await fetch(API_ENDPOINTS.USER_PROFILE, {
               method: "PUT",
               headers: {
                 "Content-Type": "application/json",
