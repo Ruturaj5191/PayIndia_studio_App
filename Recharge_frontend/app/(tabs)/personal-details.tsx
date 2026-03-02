@@ -9,6 +9,7 @@ import {
   Alert,
   BackHandler,
   Image,
+  Modal,
   SafeAreaView,
   ScrollView,
   StyleSheet,
@@ -16,6 +17,7 @@ import {
   TextInput,
   TouchableOpacity,
   View,
+  FlatList,
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { API_ENDPOINTS } from "../../constants/api";
@@ -36,6 +38,12 @@ export default function PersonalDetailsScreen() {
   const [isLoading, setIsLoading] = useState(false);
   const [isFetching, setIsFetching] = useState(true);
 
+  // Date Picker States
+  const [isDatePickerVisible, setIsDatePickerVisible] = useState(false);
+  const [viewDate, setViewDate] = useState(new Date()); // Date currently being viewed in calendar
+  const [selectedDate, setSelectedDate] = useState(new Date()); // Date actually selected
+  const [pickerView, setPickerView] = useState<"calendar" | "year">("calendar");
+
   // Fetch initial profile data
   useEffect(() => {
     fetchProfile();
@@ -55,9 +63,11 @@ export default function PersonalDetailsScreen() {
       if (response.ok) {
         setFullName(data.name || "");
         setMobileNumber(data.mobile_number || "");
-        setEmail(data.email || "");
+        setEmail(data.user_email || "");
         setGender(data.gender || "");
-        setDateOfBirth(data.date_of_birth || "");
+        // Truncate DOB to 10 characters (YYYY-MM-DD) to pass validation
+        const rawDOB = data.date_of_birth || "";
+        setDateOfBirth(rawDOB.length > 10 ? rawDOB.substring(0, 10) : rawDOB);
         setProfileImage(data.profile_image || null);
       }
     } catch (error) {
@@ -189,6 +199,71 @@ export default function PersonalDetailsScreen() {
     setDateOfBirth(formatted);
   };
 
+  // Date Picker Logic
+  const openDatePicker = () => {
+    let initialDate = new Date();
+    if (dateOfBirth && dateOfBirth.length === 10) {
+      const parts = dateOfBirth.split("-");
+      initialDate = new Date(
+        parseInt(parts[0]),
+        parseInt(parts[1]) - 1,
+        parseInt(parts[2])
+      );
+    }
+    setSelectedDate(initialDate);
+    setViewDate(new Date(initialDate.getFullYear(), initialDate.getMonth(), 1));
+    setPickerView("calendar");
+    setIsDatePickerVisible(true);
+  };
+
+  const confirmDate = () => {
+    const year = selectedDate.getFullYear();
+    const month = (selectedDate.getMonth() + 1).toString().padStart(2, "0");
+    const day = selectedDate.getDate().toString().padStart(2, "0");
+    setDateOfBirth(`${year}-${month}-${day}`);
+    setIsDatePickerVisible(false);
+  };
+
+  const changeMonth = (offset: number) => {
+    const newDate = new Date(viewDate.getFullYear(), viewDate.getMonth() + offset, 1);
+    setViewDate(newDate);
+  };
+
+  const years = Array.from(
+    { length: new Date().getFullYear() - 1950 + 1 },
+    (_, i) => 1950 + i
+  ).reverse();
+
+  const months = [
+    "January", "February", "March", "April", "May", "June",
+    "July", "August", "September", "October", "November", "December"
+  ];
+
+  const shortMonths = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  const daysOfWeek = ["M", "T", "W", "T", "F", "S", "S"];
+  const dayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+
+  const getCalendarDays = () => {
+    const year = viewDate.getFullYear();
+    const month = viewDate.getMonth();
+    const firstDay = new Date(year, month, 1).getDay(); // 0 is Sunday
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+    // Adjust firstDay to start from Monday (0: Mon, 6: Sun)
+    const adjustedFirstDay = firstDay === 0 ? 6 : firstDay - 1;
+
+    const days = [];
+    // Padding for start of month
+    for (let i = 0; i < adjustedFirstDay; i++) {
+      days.push(null);
+    }
+    // Days of month
+    for (let i = 1; i <= daysInMonth; i++) {
+      days.push(i);
+    }
+    return days;
+  };
+
   // Format mobile number
   const handleMobileChange = (text: string) => {
     // Remove all non-digits
@@ -289,7 +364,7 @@ export default function PersonalDetailsScreen() {
               },
               body: JSON.stringify({
                 name: fullName,
-                email: email,
+                user_email: email,
                 gender: gender,
                 date_of_birth: dateOfBirth,
                 profile_image: profileImage,
@@ -528,7 +603,9 @@ export default function PersonalDetailsScreen() {
                 Date of Birth <Text style={styles.required}>*</Text>
               </Text>
               <View style={styles.inputContainer}>
-                <Ionicons name="calendar-outline" size={20} color="#999" />
+                <TouchableOpacity onPress={openDatePicker}>
+                  <Ionicons name="calendar-outline" size={20} color="#2196F3" />
+                </TouchableOpacity>
                 <TextInput
                   style={styles.input}
                   placeholder="YYYY-MM-DD"
@@ -563,6 +640,148 @@ export default function PersonalDetailsScreen() {
           {/* Bottom Spacing */}
           <View style={{ height: 30 }} />
         </ScrollView>
+
+        {/* Date Picker Modal */}
+        <Modal
+          visible={isDatePickerVisible}
+          transparent={true}
+          animationType="fade"
+          onRequestClose={() => setIsDatePickerVisible(false)}
+        >
+          <View style={styles.modalOverlay}>
+            <TouchableOpacity
+              style={styles.modalDismiss}
+              activeOpacity={1}
+              onPress={() => setIsDatePickerVisible(false)}
+            />
+            <View style={styles.pickerCard}>
+              {/* Material Header */}
+              <View style={styles.pickerHeader}>
+                <TouchableOpacity onPress={() => setPickerView("year")}>
+                  <Text style={styles.pickerYearText}>{selectedDate.getFullYear()}</Text>
+                </TouchableOpacity>
+                <Text style={styles.pickerFullDateText}>
+                  {dayNames[selectedDate.getDay()]}, {selectedDate.getDate()} {shortMonths[selectedDate.getMonth()]}
+                </Text>
+              </View>
+
+              {pickerView === "calendar" ? (
+                <>
+                  {/* Month Navigation */}
+                  <View style={styles.monthNav}>
+                    <TouchableOpacity onPress={() => changeMonth(-1)} style={styles.navArrow}>
+                      <Ionicons name="chevron-back" size={20} color="#555" />
+                    </TouchableOpacity>
+                    <Text style={styles.monthYearDisplay}>
+                      {months[viewDate.getMonth()]} {viewDate.getFullYear()}
+                    </Text>
+                    <TouchableOpacity onPress={() => changeMonth(1)} style={styles.navArrow}>
+                      <Ionicons name="chevron-forward" size={20} color="#555" />
+                    </TouchableOpacity>
+                  </View>
+
+                  {/* Calendar Grid */}
+                  <View style={styles.calendarContainer}>
+                    <View style={styles.weekHeaders}>
+                      {daysOfWeek.map((day, i) => (
+                        <Text key={i} style={styles.weekHeaderText}>{day}</Text>
+                      ))}
+                    </View>
+                    <View style={styles.daysGrid}>
+                      {getCalendarDays().map((day, index) => (
+                        <TouchableOpacity
+                          key={index}
+                          style={[
+                            styles.dayCell,
+                            day === selectedDate.getDate() &&
+                            viewDate.getMonth() === selectedDate.getMonth() &&
+                            viewDate.getFullYear() === selectedDate.getFullYear() &&
+                            styles.selectedDayCell
+                          ]}
+                          disabled={day === null}
+                          onPress={() => {
+                            if (day) {
+                              setSelectedDate(new Date(viewDate.getFullYear(), viewDate.getMonth(), day));
+                            }
+                          }}
+                        >
+                          <Text style={[
+                            styles.dayText,
+                            day === selectedDate.getDate() &&
+                            viewDate.getMonth() === selectedDate.getMonth() &&
+                            viewDate.getFullYear() === selectedDate.getFullYear() &&
+                            styles.selectedDayText
+                          ]}>
+                            {day || ""}
+                          </Text>
+                        </TouchableOpacity>
+                      ))}
+                    </View>
+                  </View>
+                </>
+              ) : (
+                /* Year List View */
+                <View style={[styles.pickerContent, { height: 320 }]}>
+                  <FlatList
+                    data={years}
+                    keyExtractor={(item: number) => item.toString()}
+                    renderItem={({ item }: { item: number }) => (
+                      <TouchableOpacity
+                        style={[
+                          styles.yearListItem,
+                          selectedDate.getFullYear() === item && styles.yearListItemActive,
+                        ]}
+                        onPress={() => {
+                          const newSelected = new Date(selectedDate);
+                          newSelected.setFullYear(item);
+                          setSelectedDate(newSelected);
+                          setViewDate(new Date(item, newSelected.getMonth(), 1));
+                          setPickerView("calendar");
+                        }}
+                      >
+                        <Text
+                          style={[
+                            styles.yearListText,
+                            selectedDate.getFullYear() === item && styles.yearListTextActive,
+                          ]}
+                        >
+                          {item}
+                        </Text>
+                      </TouchableOpacity>
+                    )}
+                    numColumns={3}
+                    showsVerticalScrollIndicator={false}
+                  />
+                </View>
+              )}
+
+              <View style={styles.pickerFooter}>
+                <TouchableOpacity
+                  style={styles.footerBtn}
+                  onPress={() => {
+                    setDateOfBirth("");
+                    setIsDatePickerVisible(false);
+                  }}
+                >
+                  <Text style={styles.footerBtnText}>CLEAR</Text>
+                </TouchableOpacity>
+                <View style={{ flex: 1 }} />
+                <TouchableOpacity
+                  style={styles.footerBtn}
+                  onPress={() => setIsDatePickerVisible(false)}
+                >
+                  <Text style={styles.footerBtnText}>CANCEL</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.footerBtn}
+                  onPress={confirmDate}
+                >
+                  <Text style={styles.footerBtnText}>SET</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </View>
+        </Modal>
       </SafeAreaView>
     </View>
   );
@@ -800,6 +1019,138 @@ const styles = StyleSheet.create({
   saveButtonText: {
     fontSize: 16,
     fontWeight: "bold",
-    color: "#0D47A1",
+    color: "#FFFFFF",
+  },
+
+  // Date Picker Modal Styles
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: "rgba(0,0,0,0.5)",
+    justifyContent: "center",
+    padding: 20,
+  },
+  modalDismiss: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+  },
+  pickerCard: {
+    backgroundColor: "#FFFFFF",
+    borderRadius: 24,
+    overflow: "hidden",
+    maxHeight: "80%",
+  },
+  pickerHeader: {
+    backgroundColor: "#1976D2",
+    padding: 20,
+    paddingTop: 25,
+  },
+  pickerYearText: {
+    color: "rgba(255,255,255,0.7)",
+    fontSize: 16,
+    fontWeight: "600",
+  },
+  pickerFullDateText: {
+    color: "#FFFFFF",
+    fontSize: 32,
+    fontWeight: "bold",
+    marginTop: 5,
+  },
+  monthNav: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingHorizontal: 15,
+    paddingVertical: 15,
+  },
+  navArrow: {
+    padding: 10,
+  },
+  monthYearDisplay: {
+    fontSize: 16,
+    fontWeight: "bold",
+    color: "#333",
+  },
+  calendarContainer: {
+    paddingHorizontal: 15,
+    paddingBottom: 15,
+    height: 300,
+  },
+  weekHeaders: {
+    flexDirection: "row",
+    marginBottom: 10,
+  },
+  weekHeaderText: {
+    flex: 1,
+    textAlign: "center",
+    color: "#999",
+    fontSize: 12,
+    fontWeight: "bold",
+  },
+  daysGrid: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+  },
+  dayCell: {
+    width: "14.28%",
+    aspectRatio: 1,
+    alignItems: "center",
+    justifyContent: "center",
+    borderRadius: 20,
+  },
+  selectedDayCell: {
+    backgroundColor: "#1976D2",
+  },
+  dayText: {
+    fontSize: 14,
+    color: "#333",
+  },
+  selectedDayText: {
+    color: "#FFFFFF",
+    fontWeight: "bold",
+  },
+  yearListItem: {
+    flex: 1,
+    paddingVertical: 15,
+    alignItems: "center",
+    margin: 5,
+    borderRadius: 10,
+    backgroundColor: "#F5F5F5",
+  },
+  yearListItemActive: {
+    backgroundColor: "#E3F2FD",
+    borderWidth: 1,
+    borderColor: "#1976D2",
+  },
+  yearListText: {
+    fontSize: 16,
+    color: "#666",
+  },
+  yearListTextActive: {
+    color: "#1976D2",
+    fontWeight: "bold",
+  },
+  pickerContent: {
+    padding: 15,
+  },
+  pickerFooter: {
+    flexDirection: "row",
+    justifyContent: "flex-end",
+    padding: 10,
+    paddingBottom: 15,
+    paddingRight: 20,
+    borderTopWidth: 1,
+    borderTopColor: "#EEE",
+  },
+  footerBtn: {
+    paddingHorizontal: 15,
+    paddingVertical: 10,
+  },
+  footerBtnText: {
+    color: "#1976D2",
+    fontWeight: "bold",
+    fontSize: 14,
   },
 });

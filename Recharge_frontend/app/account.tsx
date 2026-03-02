@@ -122,8 +122,8 @@ export default function AccountScreen() {
                 <Text style={styles.profilePhone}>
                   +91 {userData?.mobile_number || "XXXXXXXXXX"}
                 </Text>
-                {userData?.email && (
-                  <Text style={styles.profileEmail}>{userData.email}</Text>
+                {userData?.user_email && (
+                  <Text style={styles.profileEmail}>{userData.user_email}</Text>
                 )}
               </>
             )}

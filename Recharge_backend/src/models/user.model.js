@@ -25,19 +25,21 @@ exports.create = async (mobile) => {
 };
 
 exports.updateProfile = async (userId, data) => {
-  const { name, gender, date_of_birth, profile_image } = data;
+  const { name, gender, user_email, date_of_birth, profile_image } = data;
 
   await pool.query(
     `UPDATE users
      SET 
        name = COALESCE(?, name),
        gender = COALESCE(?, gender),
+       user_email = COALESCE(?, user_email),
        date_of_birth = COALESCE(?, date_of_birth),
        profile_image = COALESCE(?, profile_image)
      WHERE user_id = ?`,
     [
       name ?? null,
       gender ?? null,
+      user_email ?? null,
       date_of_birth ?? null,
       profile_image ?? null,
       userId,
@@ -53,6 +55,7 @@ exports.getUserById = (userId) => {
        mobile_number,
        name,
        gender,
+       user_email,
        date_of_birth,
        profile_image,
        wallet_balance,
